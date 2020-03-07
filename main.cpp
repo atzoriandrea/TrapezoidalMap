@@ -1,6 +1,7 @@
 #include <cg3/viewer/mainwindow.h>
 
 #include "managers/trapezoidalmap_manager.h"
+#include <data_structures/dag_dataset.h>
 
 int main(int argc, char *argv[]) {
     CG3_SUPPRESS_WARNING(argc);
@@ -14,7 +15,6 @@ int main(int argc, char *argv[]) {
     //Voronoi manager initialization
     TrapezoidalMapManager vm(&gui);
     gui.addManager(&vm, "Trapezoidal map Manager");
-
     //Show the GUI
     gui.updateCanvas();
     gui.show();

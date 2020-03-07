@@ -1,4 +1,7 @@
 #include "trapezoidalmap_dataset.h"
+#include <data_structures/dag_dataset.h>
+#include <data_structures/dag_node.h>
+
 
 TrapezoidalMapDataset::TrapezoidalMapDataset() :
     boundingBox(cg3::Point2d(0,0),cg3::Point2d(0,0))
@@ -94,6 +97,8 @@ size_t TrapezoidalMapDataset::addSegment(const cg3::Segment2d& segment, bool& se
 
                 segmentMap.insert(std::make_pair(IndexedSegment2d(id1, id2), id));
 
+                cg3::Segment2d s = segment;
+                Dag::addSegment(&s);
                 intersectionChecker.insert(segment);
             }
         }
