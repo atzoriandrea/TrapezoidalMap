@@ -9,6 +9,7 @@ class Dag{
 public:
     Dag();
     static void addSegment(cg3::Segment2d& segment);
+    static void addMultiTrapezoidalSegment(DagNode * split, cg3::Segment2d& segment);
     static DagNode * searchPoint(const cg3::Point2d& point);
     static DagNode * splitNode(cg3::Segment2d& segment);
     static DagNode *getDag();

@@ -16,25 +16,38 @@ DagNodeArea::DagNodeArea(){
 }
 
 
-//verfica se il punto point è sopra o sotto il segmento
-double matrixDet(cg3::Segment2d* segment, const cg3::Point2d& point){
-    return (segment->p1().x()*(segment->p2().y()-point.y()))-
-            (segment->p1().y()*(segment->p2().x()-point.x()))-
-            ((segment->p2().x()*point.y())-(segment->p2().y()*point.x()));
+//verfica se il punto point è sopra o sotto il segmento calcolando il determinante di [[sx1,sy1,1][sx2,sy2,1][px,py,1]]
+double matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point){
+    return (segment.p1().x()*(segment.p2().y()-point.y()))-
+            (segment.p1().y()*(segment.p2().x()-point.x()))-
+            ((segment.p2().x()*point.y())-(segment.p2().y()*point.x()));
 }
 
 //template<typename T>
-DagNode *DagNodePoint::compareTo(const cg3::Point2d& point){
+DagNode *DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
     return (point.x()<this->point->x())? this->getLeftChild() : this->getRightChild();
 }
+
+DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
+    double res = matrixDet(segment, *this->point);
+    return (res < 0)? this->getLeftChild():this->getRightChild();
+
+}
 //template<typename T>
-DagNode *DagNodeSegment::compareTo(const cg3::Point2d& point){
+DagNode *DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     double res;
-    res = matrixDet(this->segment, point);
-    return (res < 0)? this->getRightChild():this->getLeftChild();
+    res = matrixDet(*this->segment, point);
+    return (res > 0)? this->getRightChild():this->getLeftChild();
 }
 
-//rende l'indirizzo del puntatore al figlio sinistro. Modificandone il valore, verrà modificato solo il figlio puntato
+DagNode *DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
+    double c1 = matrixDet(segment, this->segment->p1());
+    double c2 = matrixDet(segment, this->segment->p2());
+    return (c1 > 0 && c2 > 0) ? this->getLeftChild():this->getRightChild();
+
+}
+
+
 DagNode * DagNode::getLeftChild() const
 {
     return leftChild;
@@ -57,4 +70,6 @@ void DagNode::setRightChild(DagNode *value)
 
 
 
-DagNode *DagNodeArea::compareTo(const cg3::Point2d &point){}
+DagNode *DagNodeArea::compareNodeToPoint(const cg3::Point2d &point){}
+
+DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
