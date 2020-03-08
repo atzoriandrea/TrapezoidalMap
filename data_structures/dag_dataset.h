@@ -8,11 +8,13 @@
 class Dag{
 public:
     Dag();
-    static void addSegment(cg3::Segment2d* segment);
-    static DagNode * searchPoint(cg3::Point2d point);
-    static DagNode dag;
-    static DagNode* getInstance();
-
+    static void addSegment(cg3::Segment2d& segment);
+    static DagNode * searchPoint(const cg3::Point2d& point);
+    static DagNode * splitNode(cg3::Segment2d& segment);
+    static DagNode *getDag();
+private:
+    static DagNode * dag;
 };
 
+//DagNode* Dag::dag = nullptr;
 #endif // DAG_DATASET_H
