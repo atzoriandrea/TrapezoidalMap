@@ -2,9 +2,10 @@
 #include <data_structures/dag_node.h>
 
 DagNode* Dag::dag = nullptr;
-
+std::map<unsigned int, DagNode **> Dag::tempmap = {};
 Dag::Dag(){
     dag=nullptr;
+    tempmap = {};
 }
 void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
     DagNode* split;
@@ -30,7 +31,8 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
 
         }
         else{
-            addMultiTrapezoidalSegment(split, segment);
+            //addMultiTrapezoidalSegment(split, segment);
+            innerNodes(split,segment);
         }
     }
     else{
@@ -47,54 +49,92 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
 
 }
 
-void Dag::addMultiTrapezoidalSegment(DagNode *split, cg3::Segment2d &segment)
+void Dag::addMultiTrapezoidalSegment(DagNode **nodePointer, cg3::Segment2d &segment)
 {
 
-    DagNode * choose = split->compareNodeToSegment(segment);
-    //if(choose->getLeftChild()!=nullptr || split==Dag::dag){
-    if((split->getLeftChild())->getLeftChild() != nullptr)
-        addMultiTrapezoidalSegment(split->getLeftChild(), segment);
-    if((split->getRightChild())->getLeftChild() != nullptr)
-        addMultiTrapezoidalSegment(split->getRightChild(), segment);
-    //}
-    if(choose->getLeftChild()==nullptr){
-        if(choose == searchPoint(segment.p1())){
-            cg3::Point2d p = segment.p1();
-            DagNode* dg = new DagNodePoint(p);
-            DagNode * seg = new DagNodeSegment(&segment);
-            dg->setLeftChild(new DagNodeArea());
-            seg->setLeftChild(new DagNodeArea());
-            seg->setRightChild(new DagNodeArea());
-            dg->setRightChild(seg);
-            if(split->getLeftChild()==choose)
-                split->setLeftChild(dg);
-            if(split->getRightChild()==choose)
-                split->setRightChild(dg);
-        }
-        else if(choose == searchPoint(segment.p2())){
-            cg3::Point2d p = segment.p2();
-            DagNode* dg = new DagNodePoint(p);
-            DagNode * seg = new DagNodeSegment(&segment);
-            dg->setRightChild(new DagNodeArea());
-            seg->setLeftChild(new DagNodeArea());
-            seg->setRightChild(new DagNodeArea());
-            dg->setLeftChild(seg);
-            if(split->getLeftChild()==choose)
-                split->setLeftChild(dg);
-            if(split->getRightChild()==choose)
-                split->setRightChild(dg);
-        }
-        else{
-            DagNode* dg = new DagNodeSegment(&segment);
-            if(split->getLeftChild()==choose)
-                split->setLeftChild(dg);
-            if(split->getRightChild()==choose)
-                split->setRightChild(dg);
-        }
+    if(Dag::tempmap.size()>0){
 
     }
+    else{
+
+    }
+    //DagNode * choose = split->compareNodeToSegment(segment);
+    //if(choose->getLeftChild()!=nullptr || split==Dag::dag){
+//    if((split->getLeftChild())->getLeftChild() != nullptr)
+//        addMultiTrapezoidalSegment(split->getLeftChild(), segment);
+//    if((split->getRightChild())->getLeftChild() != nullptr)
+//        addMultiTrapezoidalSegment(split->getRightChild(), segment);
+//    //}
+//    if(choose->getLeftChild()==nullptr){
+//        if(choose == searchPoint(segment.p1())){
+//            cg3::Point2d p = segment.p1();
+//            DagNode* dg = new DagNodePoint(p);
+//            DagNode * seg = new DagNodeSegment(&segment);
+//            dg->setLeftChild(new DagNodeArea());
+//            seg->setLeftChild(new DagNodeArea());
+//            seg->setRightChild(new DagNodeArea());
+//            dg->setRightChild(seg);
+//            if(split->getLeftChild()==choose)
+//                split->setLeftChild(dg);
+//            if(split->getRightChild()==choose)
+//                split->setRightChild(dg);
+//        }
+//        else if(choose == searchPoint(segment.p2())){
+//            cg3::Point2d p = segment.p2();
+//            DagNode* dg = new DagNodePoint(p);
+//            DagNode * seg = new DagNodeSegment(&segment);
+//            dg->setRightChild(new DagNodeArea());
+//            seg->setLeftChild(new DagNodeArea());
+//            seg->setRightChild(new DagNodeArea());
+//            dg->setLeftChild(seg);
+//            if(split->getLeftChild()==choose)
+//                split->setLeftChild(dg);
+//            if(split->getRightChild()==choose)
+//                split->setRightChild(dg);
+//        }
+//        else{
+//            DagNode* dg = new DagNodeSegment(&segment);
+//            if(split->getLeftChild()==choose)
+//                split->setLeftChild(dg);
+//            if(split->getRightChild()==choose)
+//                split->setRightChild(dg);
+//        }
+
+//    }
 
 };
+
+void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment){
+    enum direction { left = 1, right = 2, both = 3 };
+    int chosen = split->oneOrBoth(segment);
+
+    if(chosen==both){
+        if(split->getLeftChild()->getLeftChild()==nullptr){
+            tempmap.insert(std::make_pair(tempmap.size(),split->lcPointerAddress()));
+            innerNodes(split->getRightChild(),segment);
+        }
+        else if(split->getRightChild()->getRightChild()==nullptr){
+            innerNodes(split->getLeftChild(),segment);
+            tempmap.insert(std::make_pair(tempmap.size(),split->rcPointerAddress()));
+        }
+        else{
+            innerNodes(split->getLeftChild(),segment);
+            innerNodes(split->getRightChild(),segment);
+        }
+    }
+    if(chosen==right){
+        if(split->getRightChild()->getRightChild()==nullptr)
+            tempmap.insert(std::make_pair(tempmap.size(),split->rcPointerAddress()));
+        else
+            innerNodes(split->getRightChild(),segment);
+    }
+    if(chosen==left){
+        if(split->getLeftChild()->getLeftChild()==nullptr)
+            tempmap.insert(std::make_pair(tempmap.size(),split->lcPointerAddress()));
+        else
+            innerNodes(split->getLeftChild(),segment);
+    }
+}
 DagNode* Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
     DagNode* tmpdag=Dag::dag;
     if (tmpdag == nullptr)

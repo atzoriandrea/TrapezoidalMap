@@ -33,6 +33,15 @@ DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
     return (res < 0)? this->getLeftChild():this->getRightChild();
 
 }
+
+int DagNodePoint::oneOrBoth(const cg3::Segment2d & segment)
+{
+    enum direction { left = 1, right = 2, both = 3 };
+    double xValue = this->point->x();
+    if(segment.p1().x() < xValue && segment.p2().x() > xValue)
+        return both;
+    return (this->compareNodeToSegment(segment)==this->getLeftChild())? left : right;
+}
 //template<typename T>
 DagNode *DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     double res;
@@ -45,6 +54,12 @@ DagNode *DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
     double c2 = matrixDet(segment, this->segment->p2());
     return (c1 > 0 && c2 > 0) ? this->getLeftChild():this->getRightChild();
 
+}
+
+int DagNodeSegment::oneOrBoth(const cg3::Segment2d & segment)
+{
+    enum direction { left = 1, right = 2, both = 3 };
+    return(this->compareNodeToSegment(segment)==this->getLeftChild())? left : right;
 }
 
 
@@ -68,8 +83,20 @@ void DagNode::setRightChild(DagNode *value)
     rightChild = value;
 }
 
+DagNode **DagNode::lcPointerAddress()
+{
+    return &leftChild;
+}
+
+DagNode **DagNode::rcPointerAddress()
+{
+    return &rightChild;
+}
+
 
 
 DagNode *DagNodeArea::compareNodeToPoint(const cg3::Point2d &point){}
 
 DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
+
+int DagNodeArea::oneOrBoth(const cg3::Segment2d &){}

@@ -6,10 +6,13 @@ class DagNode{
 public:
     virtual DagNode* compareNodeToPoint(const cg3::Point2d& ){}
     virtual DagNode* compareNodeToSegment(const cg3::Segment2d& ){}
+    virtual int oneOrBoth(const cg3::Segment2d&){}
     DagNode *getLeftChild() const;
     void setLeftChild(DagNode *value);
     DagNode *getRightChild() const;
     void setRightChild(DagNode *value);
+    DagNode ** lcPointerAddress();
+    DagNode ** rcPointerAddress();
     virtual ~DagNode(){}
     friend class Dag;
 private:
@@ -23,6 +26,7 @@ public:
     DagNodePoint(cg3::Point2d& point);
     DagNode *compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
+    int oneOrBoth(const cg3::Segment2d&) override;
 
 private:
     cg3::Point2d* point;
@@ -35,7 +39,7 @@ public:
     //template<typename T>
     DagNode *compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
-
+    int oneOrBoth(const cg3::Segment2d&) override;
 private:
     cg3::Segment2d* segment;
 };
@@ -45,7 +49,7 @@ public:
     DagNodeArea();
     DagNode *compareNodeToPoint(const cg3::Point2d& point)override ;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
-
+    int oneOrBoth(const cg3::Segment2d&) override;
 private:
     std::string label;
 };
