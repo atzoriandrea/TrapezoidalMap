@@ -73,11 +73,22 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
             currentDirectionUp = (itr->second.second->compareNodeToSegment(segment)==itr->second.second->getLeftChild())? true:false;
             if(currentDirectionUp!=lastDirectionUp && itr->second.second!=lastMeaningful){
                 --itr;
-                (lastDirectionUp==true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
+                if(itr!=Dag::tempmap.begin())
+                    (lastDirectionUp==true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
+                else
+                    (lastDirectionUp==true)?dg->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dg->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
+                ++itr;
+            }
+            if(currentDirectionUp==lastDirectionUp){
+                --itr;
+                if(itr!=Dag::tempmap.begin())
+                    (lastDirectionUp!=true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
+                else
+                    (lastDirectionUp!=true)?dg->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dg->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
                 ++itr;
             }
             lastMeaningful = itr->second.second;
-            lastDirectionUp = (lastMeaningful->compareNodeToSegment(segment)==lastMeaningful->getLeftChild())? true:false;
+            lastDirectionUp = currentDirectionUp;
             *(itr->second.first) = dg;
 
         }
@@ -86,26 +97,28 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
             DagNode* dg = new DagNodePoint(p);
             dg->setRightChild(new DagNodeArea());
             DagNode* dgs = new DagNodeSegment(segment);
+            currentDirectionUp = (itr->second.second->compareNodeToSegment(segment)==itr->second.second->getLeftChild())? true:false;
             if(currentDirectionUp!=lastDirectionUp && itr->second.second!=lastMeaningful){
                 --itr;
                 if(itr!=Dag::tempmap.begin())
-                    (lastDirectionUp==true)?dgs->setRightChild((*(itr->second.first))->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getLeftChild());
+                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getLeftChild());
                 else
-                    (lastDirectionUp==true)?dgs->setRightChild((*(itr->second.first))->getRightChild()->getLeftChild()):dgs->setLeftChild((*(itr->second.first))->getRightChild()->getRightChild());
+                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
                 ++itr;
             }
             if(currentDirectionUp==lastDirectionUp){
                 --itr;
                 if(itr!=Dag::tempmap.begin())
-                    (lastDirectionUp==true)?dgs->setLeftChild((*(itr->second.first))->getLeftChild()):dgs->setRightChild((*(itr->second.first))->getRightChild());
+                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getLeftChild()):dgs->setRightChild((*(itr->second.first))->getRightChild());
                 else
-                    (lastDirectionUp==true)?dgs->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild()):dgs->setRightChild((*(itr->second.first))->getRightChild()->getRightChild());
+                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
                 ++itr;
             }
             dg->setLeftChild(dgs);
             *(itr->second.first) = dg;
         }
     }
+
 
 };
 

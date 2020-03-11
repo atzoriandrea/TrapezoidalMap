@@ -30,7 +30,7 @@ DagNode *DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
 
 DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
     double res = matrixDet(segment, this->point);
-    return (res > 0)? this->getLeftChild():this->getRightChild();
+    return (res < 0)? this->getLeftChild():this->getRightChild();
 
 }
 
@@ -53,6 +53,9 @@ DagNode *DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
 DagNode *DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
     double c1 = matrixDet(segment, this->segment.p1());
     double c2 = matrixDet(segment, this->segment.p2());
+    if((c1 < 0 && c2 > 0) ||( c1 > 0 && c2 < 0 )){
+        return(abs(c1) > abs(c2))?this->getLeftChild():this->getRightChild();
+    }
     return (c1 < 0 && c2 < 0) ? this->getLeftChild():this->getRightChild();
 
 }
