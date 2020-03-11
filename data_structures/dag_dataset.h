@@ -8,13 +8,13 @@
 class Dag{
 public:
     Dag();
-    static void innerNodes(DagNode *split, cg3::Segment2d &segment);
+    static void innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful);
     static void addSegment(cg3::Segment2d& segment);
-    static void addMultiTrapezoidalSegment(DagNode ** nodePointer, cg3::Segment2d& segment);
+    static void addMultiTrapezoidalSegment(cg3::Segment2d& segment);
     static DagNode * searchPoint(const cg3::Point2d& point);
     static DagNode * splitNode(cg3::Segment2d& segment);
     static DagNode *getDag();
-    static std::map<unsigned int, DagNode **> tempmap;
+    static std::map<unsigned int, std::pair<DagNode **, DagNode*>> tempmap;
 private:
     static DagNode * dag;
 

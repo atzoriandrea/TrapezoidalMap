@@ -29,19 +29,19 @@ public:
     int oneOrBoth(const cg3::Segment2d&) override;
 
 private:
-    cg3::Point2d* point;
+    cg3::Point2d point;
 
 };
 
 class DagNodeSegment:public DagNode{
 public:
-    DagNodeSegment(cg3::Segment2d* segment);
+    DagNodeSegment(cg3::Segment2d& segment);
     //template<typename T>
     DagNode *compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
 private:
-    cg3::Segment2d* segment;
+    cg3::Segment2d segment;
 };
 
 class DagNodeArea:public DagNode{
