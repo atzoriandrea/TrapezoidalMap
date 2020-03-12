@@ -71,15 +71,15 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
             DagNode* dg = new DagNodeSegment(segment);
             //
             currentDirectionUp = (itr->second.second->compareNodeToSegment(segment)==itr->second.second->getLeftChild())? true:false;
-            if(currentDirectionUp!=lastDirectionUp && itr->second.second!=lastMeaningful){
+            if(currentDirectionUp!=lastDirectionUp){
                 --itr;
                 if(itr!=Dag::tempmap.begin())
-                    (lastDirectionUp==true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
+                    (lastDirectionUp!=true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
                 else
-                    (lastDirectionUp==true)?dg->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dg->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
+                    (lastDirectionUp!=true)?dg->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dg->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
                 ++itr;
             }
-            if(currentDirectionUp==lastDirectionUp){
+            else{
                 --itr;
                 if(itr!=Dag::tempmap.begin())
                     (lastDirectionUp!=true)?dg->setRightChild((*(itr->second.first))->getRightChild()):dg->setLeftChild((*(itr->second.first))->getLeftChild());
@@ -98,7 +98,7 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
             dg->setRightChild(new DagNodeArea());
             DagNode* dgs = new DagNodeSegment(segment);
             currentDirectionUp = (itr->second.second->compareNodeToSegment(segment)==itr->second.second->getLeftChild())? true:false;
-            if(currentDirectionUp!=lastDirectionUp && itr->second.second!=lastMeaningful){
+            if(currentDirectionUp!=lastDirectionUp){
                 --itr;
                 if(itr!=Dag::tempmap.begin())
                     (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getLeftChild());
@@ -109,7 +109,7 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
             if(currentDirectionUp==lastDirectionUp){
                 --itr;
                 if(itr!=Dag::tempmap.begin())
-                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getLeftChild()):dgs->setRightChild((*(itr->second.first))->getRightChild());
+                    (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getLeftChild());
                 else
                     (lastDirectionUp!=true)?dgs->setRightChild((*(itr->second.first))->getRightChild()->getRightChild()):dgs->setLeftChild((*(itr->second.first))->getRightChild()->getLeftChild());
                 ++itr;
@@ -125,7 +125,7 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
 void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful){
     enum direction { left = 1, right = 2, both = 3 };
     int chosen = split->oneOrBoth(segment);
-    if(strcmp(typeid(meaningful).name(),"12DagNodePoint")==0){
+    if(strcmp(typeid(*meaningful).name(),"12DagNodePoint")==0 && strcmp(typeid(*split).name(),"12DagNodePoint")==0){
         meaningful = split;
     }
     if(strcmp(typeid(*split).name(),"14DagNodeSegment")==0){

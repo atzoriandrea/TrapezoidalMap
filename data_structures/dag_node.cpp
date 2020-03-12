@@ -17,10 +17,14 @@ DagNodeArea::DagNodeArea(){
 
 
 //verfica se il punto point è sopra o sotto il segmento calcolando il determinante di [[sx1,sy1,1][sx2,sy2,1][px,py,1]]
-double matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point){
-    return (segment.p1().x()*(segment.p2().y()-point.y()))-
-            (segment.p1().y()*(segment.p2().x()-point.x()))-
-            ((segment.p2().x()*point.y())-(segment.p2().y()*point.x()));
+long double matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point){
+    double reducer = 100000.0;
+    double mat[3][3] = {{(segment.p1().x()/reducer),(segment.p1().y()/reducer),1.0},
+                                           {(segment.p2().x()/reducer),(segment.p2().y()/reducer), 1.0},
+                                           {(point.x()/reducer), (point.y()/reducer),1.0}};
+    return mat[0][0]*((mat[1][1]*mat[2][2]) - (mat[2][1]*mat[1][2]))
+            -mat[0][1]*(mat[1][0]*mat[2][2] - mat[2][0]*mat[1][2]) +
+            mat[0][2]*(mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1]);
 }
 
 //template<typename T>
@@ -29,7 +33,7 @@ DagNode *DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
 }
 
 DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
-    double res = matrixDet(segment, this->point);
+    long double res = matrixDet(segment, this->point);
     return (res < 0)? this->getLeftChild():this->getRightChild();
 
 }
@@ -45,14 +49,14 @@ int DagNodePoint::oneOrBoth(const cg3::Segment2d & segment)
 }
 //template<typename T>
 DagNode *DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
-    double res;
+    long double res;
     res = matrixDet(this->segment, point);
     return (res < 0)? this->getRightChild():this->getLeftChild();
 }
 
 DagNode *DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
-    double c1 = matrixDet(segment, this->segment.p1());
-    double c2 = matrixDet(segment, this->segment.p2());
+    long double c1 = matrixDet(segment, this->segment.p1());
+    long double c2 = matrixDet(segment, this->segment.p2());
     if((c1 < 0 && c2 > 0) ||( c1 > 0 && c2 < 0 )){
         return(abs(c1) > abs(c2))?this->getLeftChild():this->getRightChild();
     }
