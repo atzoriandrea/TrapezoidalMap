@@ -1,4 +1,4 @@
-#ifndef SEGMENTINTERSECTIONCHECKER_H
+ #ifndef SEGMENTINTERSECTIONCHECKER_H
 #define SEGMENTINTERSECTIONCHECKER_H
 
 #include <cg3/data_structures/trees/aabbtree.h>

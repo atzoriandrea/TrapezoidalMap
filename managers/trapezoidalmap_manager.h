@@ -4,7 +4,7 @@
 #include <QFrame>
 
 #include <cg3/viewer/mainwindow.h>
-
+#include <cg3/utilities/color.h>
 #include <cg3/viewer/drawable_objects/drawable_bounding_box2.h>
 #include <cg3/viewer/drawable_objects/drawable_point2.h>
 
@@ -56,7 +56,6 @@ private:
 
     //---------------------------------------------------------------------
     //Declare your attributes here
-
 
 
 

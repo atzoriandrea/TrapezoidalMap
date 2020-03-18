@@ -1,29 +1,60 @@
+#include "trapezoidalmap_dataset.h"
+#include "trapezoid.h"
+#include "algorithms/algorithms.h"
 #include <data_structures/dag_dataset.h>
 #include <data_structures/dag_node.h>
 
-DagNode* Dag::dag = nullptr;
+
 std::map<unsigned int, std::pair<DagNode **, DagNode*>> Dag::tempmap = {};
-Dag::Dag(){
-    dag=nullptr;
+cg3::Segment2d topbb = cg3::Segment2d(cg3::Point2d(-1000000.0, 1000000.0),cg3::Point2d(1000000.0, 1000000.0));
+cg3::Segment2d botbb = cg3::Segment2d(cg3::Point2d(-1000000.0, -1000000.0),cg3::Point2d(1000000.0, -1000000.0));
+cg3::Point2d leftp = cg3::Point2d(-1000000.0, 1000000.0);
+cg3::Point2d rightp = cg3::Point2d(1000000.0, 1000000.0);
+Trapezoid t = Trapezoid(topbb, botbb, leftp, rightp);
+DagNode* Dag::dag= new DagNodeArea(t);
+Dag::Dag(){  
     tempmap = {};
 }
 void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
     DagNode* split;
     DagNode* s1;
     DagNode* s2;
-    if(Dag::dag!=nullptr){
+    if(Dag::dag!=nullptr && Dag::dag->getLeftChild()!=nullptr){
         split = splitNode(segment);
         s1 =split->compareNodeToPoint(segment.p1());
         s2 =split->compareNodeToPoint(segment.p2());
         if(s1 == s2 && s1->getLeftChild()==nullptr){
 
+            Trapezoid trap = {static_cast<DagNodeArea *>(Dag::dag)->getT()};
+            std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
+                                              intersection(trap.getTop(), segment.p2()),
+                                              intersection(trap.getBottom(), segment.p1()),
+                                              intersection(trap.getBottom(), segment.p2())};
+            std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+                                                cg3::Segment2d(trap.getBottom().p1(),ints[2]),trap.getTop().p1() , segment.p1()),
+                                            Trapezoid(cg3::Segment2d(ints[0],ints[1]), cg3::Segment2d(segment.p1(),segment.p2()), segment.p1(), segment.p2()),
+                                            Trapezoid( cg3::Segment2d(segment.p1(),segment.p2()),cg3::Segment2d(ints[2],ints[3]), segment.p1(), segment.p2()),
+                                            Trapezoid(cg3::Segment2d(trap.getTop().p2(),ints[1]),
+                                                cg3::Segment2d(trap.getBottom().p2(),ints[4]),segment.p2(), trap.getTop().p2())};
+
             cg3::Point2d p = segment.p1();
             DagNode* dg = new DagNodePoint(p);
+            free(dg->getLeftChild());
+            free(dg->getRightChild());
+            dg->setLeftChild(new DagNodeArea(traps[0]));
             cg3::Point2d p2 = segment.p2();
             DagNode* dg2 = new DagNodePoint(p2);
+            free(dg2->getLeftChild());
+            free(dg2->getRightChild());
             dg->setRightChild(dg2);
             DagNode* dgs = new DagNodeSegment(segment);
+            free(dgs->getLeftChild());
+            free(dgs->getRightChild());
+            dgs->setLeftChild(new DagNodeArea(traps[1]));
+            dgs->setRightChild(new DagNodeArea(traps[2]));
             dg2->setLeftChild(dgs);
+            dg2->setRightChild(new DagNodeArea(traps[3]));
+            TrapezoidalMapDataset::addTrapezoids(traps);
             if(split->getLeftChild() == s1)
                 split->setLeftChild(dg);
             if(split->getRightChild() == s1)
@@ -38,13 +69,36 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
         }
     }
     else{
+        Trapezoid trap = {static_cast<DagNodeArea *>(Dag::dag)->getT()};
+        std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
+                                          intersection(trap.getTop(), segment.p2()),
+                                          intersection(trap.getBottom(), segment.p1()),
+                                          intersection(trap.getBottom(), segment.p2())};
+        std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+                                            cg3::Segment2d(trap.getBottom().p1(),ints[2]),trap.getTop().p1() , segment.p1()),
+                                        Trapezoid(cg3::Segment2d(ints[0],ints[1]), cg3::Segment2d(segment.p1(),segment.p2()), segment.p1(), segment.p2()),
+                                        Trapezoid( cg3::Segment2d(segment.p1(),segment.p2()),cg3::Segment2d(ints[2],ints[3]), segment.p1(), segment.p2()),
+                                        Trapezoid(cg3::Segment2d(trap.getTop().p2(),ints[1]),
+                                            cg3::Segment2d(trap.getBottom().p2(),ints[4]),segment.p2(), trap.getTop().p2())};
+
         cg3::Point2d p = segment.p1();
         DagNode* dg = new DagNodePoint(p);
+        free(dg->getLeftChild());
+        free(dg->getRightChild());
+        dg->setLeftChild(new DagNodeArea(traps[0]));
         cg3::Point2d p2 = segment.p2();
         DagNode* dg2 = new DagNodePoint(p2);
+        free(dg2->getLeftChild());
+        free(dg2->getRightChild());
         dg->setRightChild(dg2);
         DagNode* dgs = new DagNodeSegment(segment);
+        free(dgs->getLeftChild());
+        free(dgs->getRightChild());
+        dgs->setLeftChild(new DagNodeArea(traps[1]));
+        dgs->setRightChild(new DagNodeArea(traps[2]));
         dg2->setLeftChild(dgs);
+        dg2->setRightChild(new DagNodeArea(traps[3]));
+        TrapezoidalMapDataset::addTrapezoids(traps);
         Dag::dag = dg;
 
     }

@@ -14,6 +14,11 @@ DagNodeArea::DagNodeArea(){
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);
 }
+DagNodeArea::DagNodeArea(Trapezoid &t){
+    this->trap = t;
+    this->setLeftChild(nullptr);
+    this->setRightChild(nullptr);
+}
 
 
 //verfica se il punto point è sopra o sotto il segmento calcolando il determinante di [[sx1,sy1,1][sx2,sy2,1][px,py,1]]
@@ -110,3 +115,13 @@ DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
 
 
 int DagNodeArea::oneOrBoth(const cg3::Segment2d &){}
+
+Trapezoid DagNodeArea::getT() const
+{
+    return trap;
+}
+
+void DagNodeArea::setT(const Trapezoid &value)
+{
+    trap = value;
+}

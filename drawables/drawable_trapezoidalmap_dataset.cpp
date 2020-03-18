@@ -19,6 +19,16 @@ void DrawableTrapezoidalMapDataset::draw() const
     for (const cg3::Segment2d& seg : getSegments()) {
         cg3::opengl::drawLine2(seg.p1(), seg.p2(), segmentColor, static_cast<int>(segmentSize));
     }
+//    std::unordered_map<cg3::Point2d, Trapezoid>::iterator itr;
+//    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
+//        cg3::opengl::drawLine2(itr.second.getTop().p1(),itr.second.getBottom().p1(), QColor(0,0,0), static_cast<int>(segmentSize)-2);
+//        cg3::opengl::drawLine2(itr.second.getTop().p2(),itr.second.getBottom().p2(), QColor(0,0,0), static_cast<int>(segmentSize)-2);
+//        //++itr;
+//    }
+    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
+        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
+        //++itr;
+    }
 }
 
 cg3::Point3d DrawableTrapezoidalMapDataset::sceneCenter() const

@@ -8,8 +8,10 @@
 #include <ctime>
 #include <cg3/data_structures/arrays/arrays.h>
 #include <cg3/utilities/timer.h>
+#include <CGAL/IO/Color.h>
 
 #include "utils/fileutils.h"
+#include <cg3/utilities/color.h>
 
 //Limits for the bounding box
 //It defines where points can be added
@@ -65,7 +67,6 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //The mainWindow will take care of rendering the bounding box and the selected point
     mainWindow.pushDrawableObject(&drawableBoundingBox, "Bounding box");
     mainWindow.pushDrawableObject(&drawableTrapezoidalMapDataset, "Segments");
-
 
 
     //---------------------------------------------------------------------
@@ -195,9 +196,13 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //efficient in memory. However, depending on how you implement your algorithms and data 
 	//structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-
-
-
+    std::unordered_map<cg3::Point2d, Trapezoid>::iterator itr;
+    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
+        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
+        //++itr;
+    }
+    mainWindow.updateCanvas();
+    //mainWindow.pushDrawableObject(drawa)
     //#####################################################################
 
 

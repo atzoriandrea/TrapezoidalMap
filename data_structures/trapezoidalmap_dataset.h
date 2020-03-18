@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <utility>
-
+#include "trapezoid.h"
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 #include <cg3/geometry/bounding_box2.h>
@@ -16,6 +16,13 @@
  * Every segment is unique, non-degenerate, with points in general position, and
  * it does not have any intersections with the other segments.
  */
+
+struct TrapezoidHasher {
+    const Trapezoid * operator()(const Trapezoid& x) const {
+        return &x;
+    }
+};
+
 class TrapezoidalMapDataset {
 
 public:
@@ -50,6 +57,8 @@ public:
 
     void clear();
 
+    static std::unordered_map<cg3::Point2d, Trapezoid> getTrapezoids();
+    static void addTrapezoids(std::vector<Trapezoid> vec);
 private:
 
     std::vector<cg3::Point2d> points;
@@ -62,6 +71,8 @@ private:
     cg3::BoundingBox2 boundingBox;
 
     SegmentIntersectionChecker intersectionChecker;
+
+    static std::unordered_map<cg3::Point2d, Trapezoid> trapezoids;
 
 };
 

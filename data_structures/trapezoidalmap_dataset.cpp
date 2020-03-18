@@ -2,7 +2,7 @@
 #include <data_structures/dag_dataset.h>
 #include <data_structures/dag_node.h>
 
-
+std::unordered_map<cg3::Point2d, Trapezoid> TrapezoidalMapDataset::trapezoids = {};
 TrapezoidalMapDataset::TrapezoidalMapDataset() :
     boundingBox(cg3::Point2d(0,0),cg3::Point2d(0,0))
 {
@@ -258,4 +258,19 @@ void TrapezoidalMapDataset::clear()
     boundingBox.setMin(cg3::Point2d(0,0));
     boundingBox.setMax(cg3::Point2d(0,0));
     intersectionChecker.clear();
+}
+
+std::unordered_map<cg3::Point2d, Trapezoid> TrapezoidalMapDataset::getTrapezoids()
+{
+    return trapezoids;
+}
+
+void TrapezoidalMapDataset::addTrapezoids(std::vector<Trapezoid> vec)
+{
+    //std::copy( vec.begin(), vec.end(), std::inserter( trapezoids, trapezoids.end() ) );
+
+    for (unsigned int i = 0; i<vec.size(); i++ ) {
+        trapezoids.insert(std::make_pair(vec[i].getTop().p1(),vec[i]));
+    }
+
 }

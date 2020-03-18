@@ -18,6 +18,6 @@ int main(int argc, char *argv[]) {
     //Show the GUI
     gui.updateCanvas();
     gui.show();
-    //Dag();
+
     return app.exec();
 }
