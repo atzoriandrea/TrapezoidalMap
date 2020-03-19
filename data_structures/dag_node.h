@@ -53,7 +53,7 @@ public:
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
     Trapezoid getT() const;
-    void setT(const Trapezoid &value);
+    void setT(const Trapezoid value);
 
 private:
     std::string label;

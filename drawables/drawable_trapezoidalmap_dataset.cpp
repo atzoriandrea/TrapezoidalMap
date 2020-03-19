@@ -26,7 +26,7 @@ void DrawableTrapezoidalMapDataset::draw() const
 //        //++itr;
 //    }
     for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
-        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
+        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p2(),itr.second.getBottom().p1(), QColor(0,0,0));
         //++itr;
     }
 }

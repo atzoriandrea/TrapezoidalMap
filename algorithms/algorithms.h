@@ -3,6 +3,6 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 
-cg3::Point2d intersection(cg3::Segment2d edge, cg3::Point2d point);
+cg3::Point2d intersection(const cg3::Segment2d & edge, const cg3::Point2d &point);
 
 #endif // ALGORITHMS_H

@@ -59,6 +59,7 @@ public:
 
     static std::unordered_map<cg3::Point2d, Trapezoid> getTrapezoids();
     static void addTrapezoids(std::vector<Trapezoid> vec);
+    static void removeTrapezoid(const cg3::Point2d& t);
 private:
 
     std::vector<cg3::Point2d> points;

@@ -274,3 +274,8 @@ void TrapezoidalMapDataset::addTrapezoids(std::vector<Trapezoid> vec)
     }
 
 }
+
+void TrapezoidalMapDataset::removeTrapezoid(const cg3::Point2d &p)
+{
+    trapezoids.erase(p);
+}
