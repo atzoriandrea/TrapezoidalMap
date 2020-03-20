@@ -57,7 +57,7 @@ public:
 
     void clear();
 
-    static std::unordered_map<cg3::Point2d, Trapezoid> getTrapezoids();
+    static std::map<cg3::Point2d, Trapezoid> getTrapezoids();
     static void addTrapezoids(std::vector<Trapezoid> vec);
     static void removeTrapezoid(const cg3::Point2d& t);
 private:
@@ -73,7 +73,7 @@ private:
 
     SegmentIntersectionChecker intersectionChecker;
 
-    static std::unordered_map<cg3::Point2d, Trapezoid> trapezoids;
+    static std::map<cg3::Point2d, Trapezoid> trapezoids;
 
 };
 

@@ -38,6 +38,10 @@ DagNode *DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
 }
 
 DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
+    if(segment.p2().x()<this->point.x())
+        return this->getLeftChild();
+    if(segment.p1().x()>this->point.x())
+        return this->getRightChild();
     long double res = matrixDet(segment, this->point);
     return (res < 0)? this->getLeftChild():this->getRightChild();
 
@@ -121,7 +125,8 @@ Trapezoid DagNodeArea::getT() const
     return trap;
 }
 
-void DagNodeArea::setT(const Trapezoid value)
+void DagNodeArea::setT(Trapezoid value)
 {
-    trap = value;
+    trap = Trapezoid(value.getTop(), value.getBottom(), value.getLeftp(), value.getRightp());
+    //trap = value;
 }

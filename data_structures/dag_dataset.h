@@ -14,7 +14,7 @@ public:
     static DagNode * searchPoint(const cg3::Point2d& point);
     static DagNode * splitNode(cg3::Segment2d& segment);
     static DagNode *getDag();
-    static std::map<unsigned int, std::pair<DagNode **, DagNode*>> tempmap;
+    static std::vector<std::pair<DagNode **, DagNode*>> tempmap;
 private:
     static DagNode * dag;
 
