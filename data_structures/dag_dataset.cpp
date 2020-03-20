@@ -67,7 +67,10 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
             //addMultiTrapezoidalSegment(split, segment);
             Dag::tempmap= {};
             innerNodes(split,segment,split);
-            addMultiTrapezoidalSegment(segment);
+            if(tempmap.size() == 2 && *tempmap[0].first == *tempmap[1].first)
+                addSegmentMultiPointed(segment, tempmap[0].first, tempmap[1].first);
+            else
+                addMultiTrapezoidalSegment(segment);
         }
     }
     else{
@@ -105,6 +108,44 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
         Dag::dag = dg;
 
     }
+
+}
+
+void Dag::addSegmentMultiPointed(cg3::Segment2d &segment, DagNode ** left, DagNode ** right)
+{
+    Trapezoid trap = {static_cast<DagNodeArea *>(*left)->getT()};
+    std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
+                                      intersection(trap.getTop(), segment.p2()),
+                                      intersection(trap.getBottom(), segment.p1()),
+                                      intersection(trap.getBottom(), segment.p2())};
+    std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+                                        cg3::Segment2d(trap.getBottom().p1(),ints[2]),trap.getTop().p1() , segment.p1()),
+                                    Trapezoid(cg3::Segment2d(ints[0],ints[1]), cg3::Segment2d(segment.p1(),segment.p2()), segment.p1(), segment.p2()),
+                                    Trapezoid(cg3::Segment2d(segment.p1(),segment.p2()),cg3::Segment2d(ints[2],ints[3]), segment.p1(), segment.p2()),
+                                    Trapezoid(cg3::Segment2d(ints[1], trap.getTop().p2()),
+                                        cg3::Segment2d(ints[3], trap.getBottom().p2()),segment.p2(), trap.getTop().p2())};
+
+    cg3::Point2d p = segment.p1();
+    DagNode* dg = new DagNodePoint(p);
+    //free(dg->getLeftChild());
+    //free(dg->getRightChild());
+    dg->setLeftChild(new DagNodeArea(traps[0]));
+    cg3::Point2d p2 = segment.p2();
+    DagNode* dg2 = new DagNodePoint(p2);
+    //free(dg2->getLeftChild());
+    //free(dg2->getRightChild());
+    dg->setRightChild(dg2);
+    DagNode* dgs = new DagNodeSegment(segment);
+    //free(dgs->getLeftChild());
+    //free(dgs->getRightChild());
+    dgs->setLeftChild(new DagNodeArea(traps[1]));
+    dgs->setRightChild(new DagNodeArea(traps[2]));
+    dg2->setLeftChild(dgs);
+    dg2->setRightChild(new DagNodeArea(traps[3]));
+    TrapezoidalMapDataset::removeTrapezoid(static_cast<DagNodeArea *>(*left)->getT().getTop().p1());
+    TrapezoidalMapDataset::addTrapezoids(traps);
+    *left = dg;
+    *right = dg;
 
 }
 
@@ -292,7 +333,7 @@ void Dag::addMultiTrapezoidalSegment(cg3::Segment2d &segment)
                     tempTrap.setTop(cg3::Segment2d(tempTrap.getTop().p1(), rightInts[0]));
                     tempTrap.setBottom(cg3::Segment2d(tempTrap.getBottom().p1(), rightInts[1]));
                     tempTrap.setRightp(rightInts[1]);
-                    static_cast<DagNodeArea *>((*itr->first)->getLeftChild()->getLeftChild())->setT(tempTrap);
+                    static_cast<DagNodeArea *>((*itr->first)->getRightChild()->getLeftChild())->setT(tempTrap);
                     dgs->setLeftChild((*(itr->first))->getRightChild()->getLeftChild());
                     t = Trapezoid(cg3::Segment2d(intersection(segment, trap.getTop().p1()), segment.p2()),
                                             cg3::Segment2d(trap.getBottom().p1(), intersection(trap.getBottom(), segment.p2())),intersection(segment, trap.getBottom().p1()), segment.p2());
@@ -328,13 +369,13 @@ void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningfu
     }
      if(chosen==both){
         if(split->getLeftChild()->getLeftChild()==nullptr){
-            if(tempmap.size()==0 || (tempmap.size() > 0 && *split->lcPointerAddress() != *tempmap[tempmap.size()-1].first))
+            //if(tempmap.size()==0 || (tempmap.size() > 0 && *split->lcPointerAddress() != *tempmap[tempmap.size()-1].first))
                 tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
             innerNodes(split->getRightChild(),segment,meaningful);
         }
         else if(split->getRightChild()->getRightChild()==nullptr){
             innerNodes(split->getLeftChild(),segment,meaningful);
-            if(tempmap.size()==0 || (tempmap.size() > 0 && *split->rcPointerAddress() != *tempmap[tempmap.size()-1].first))
+            //if(tempmap.size()==0 || (tempmap.size() > 0 && *split->rcPointerAddress() != *tempmap[tempmap.size()-1].first))
                 tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
 
         }
@@ -345,7 +386,7 @@ void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningfu
     }
     if(chosen==right){
         if(split->getRightChild()->getRightChild()==nullptr){
-            if(tempmap.size()==0 || (tempmap.size() > 0 && *split->rcPointerAddress() != *tempmap[tempmap.size()-1].first))
+            //if(tempmap.size()==0 || (tempmap.size() > 0 && *split->rcPointerAddress() != *tempmap[tempmap.size()-1].first))
                 tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
         }
         else
@@ -353,7 +394,7 @@ void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningfu
     }
     if(chosen==left){
         if(split->getLeftChild()->getLeftChild()==nullptr){
-            if(tempmap.size()==0 || (tempmap.size() > 0 && *split->lcPointerAddress() != *tempmap[tempmap.size()-1].first))
+            //if(tempmap.size()==0 || (tempmap.size() > 0 && *split->lcPointerAddress() != *tempmap[tempmap.size()-1].first))
                 tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
         }
         else

@@ -10,6 +10,7 @@ public:
     Dag();
     static void innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful);
     static void addSegment(cg3::Segment2d& segment);
+    static void addSegmentMultiPointed(cg3::Segment2d& segment, DagNode ** left, DagNode ** right);
     static void addMultiTrapezoidalSegment(cg3::Segment2d& segment);
     static DagNode * searchPoint(const cg3::Point2d& point);
     static DagNode * splitNode(cg3::Segment2d& segment);

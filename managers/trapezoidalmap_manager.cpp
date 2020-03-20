@@ -13,6 +13,8 @@
 #include "utils/fileutils.h"
 #include <cg3/utilities/color.h>
 
+#include <data_structures/dag_dataset.h>
+#include <data_structures/dag_node.h>
 //Limits for the bounding box
 //It defines where points can be added
 //Do not change the following line
@@ -196,16 +198,23 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //efficient in memory. However, depending on how you implement your algorithms and data 
 	//structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    std::unordered_map<cg3::Point2d, Trapezoid>::iterator itr;
-    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
-        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
-        //++itr;
-    }
-    mainWindow.updateCanvas();
+//    std::unordered_map<cg3::Point2d, Trapezoid>::iterator itr;
+//    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
+//        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
+//        //++itr;
+//    }
+//    mainWindow.updateCanvas();
     //mainWindow.pushDrawableObject(drawa)
     //#####################################################################
 
-
+    cg3::Segment2d s;
+    if(segment.p1().x() > segment.p2().x())
+        s = cg3::Segment2d(segment.p2(), segment.p1());
+    else
+        s = segment;
+    //Dag::addSegment(&s);
+    Dag::addSegment(s);
+    //DagNode * d = Dag::getDag();
 
     //You can delete this line after you implement the algorithm: it is
     //just needed to suppress the unused-variable warning
