@@ -415,7 +415,7 @@ std::vector<cg3::Segment2d> TrapezoidalMapManager::generateRandomNonIntersecting
 
     TrapezoidalMapDataset dataset;
     while (dataset.segmentNumber() < n) {
-        std::uniform_real_distribution<double> dist(0, randomPoints.size() + 0.9999);
+        std::uniform_int_distribution<int> dist(0, randomPoints.size() - 1);
 
         cg3::Point2d p1 = randomPoints[static_cast<size_t>(dist(rng))];
         cg3::Point2d p2 = randomPoints[static_cast<size_t>(dist(rng))];

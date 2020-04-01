@@ -1,5 +1,5 @@
 #include "drawable_trapezoidalmap_dataset.h"
-
+#include "data_structures/dag_dataset.h"
 #include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
 DrawableTrapezoidalMapDataset::DrawableTrapezoidalMapDataset() :
@@ -25,8 +25,8 @@ void DrawableTrapezoidalMapDataset::draw() const
 //        cg3::opengl::drawLine2(itr.second.getTop().p2(),itr.second.getBottom().p2(), QColor(0,0,0), static_cast<int>(segmentSize)-2);
 //        //++itr;
 //    }
-    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
-        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p2(),itr.second.getBottom().p1(), QColor(0,0,0));
+    for (auto itr : Dag::getTrapezoids()){
+        cg3::opengl::drawQuad2(itr.getTop().p1(),itr.getTop().p2(),itr.getBottom().p2(),itr.getBottom().p1(), QColor(0,0,0));
         //++itr;
     }
 }

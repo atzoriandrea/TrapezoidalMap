@@ -1,11 +1,11 @@
 #include <data_structures/dag_node.h>
 
-DagNodePoint::DagNodePoint(cg3::Point2d& point) :
+DagNodePoint::DagNodePoint(const cg3::Point2d& point) :
     point(point){
     this->setLeftChild(new DagNodeArea());
     this->setRightChild(new DagNodeArea());
 }
-DagNodeSegment::DagNodeSegment(cg3::Segment2d& segment) :
+DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :
     segment(segment){
     this->setLeftChild(new DagNodeArea());
     this->setRightChild(new DagNodeArea());
@@ -14,7 +14,7 @@ DagNodeArea::DagNodeArea(){
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);
 }
-DagNodeArea::DagNodeArea(Trapezoid &t){
+DagNodeArea::DagNodeArea(const Trapezoid &t){
     this->trap = t;
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);

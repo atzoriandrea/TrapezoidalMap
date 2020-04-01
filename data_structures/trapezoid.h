@@ -7,6 +7,9 @@ class Trapezoid
 {
 public:
     Trapezoid();
+    inline bool operator==(const Trapezoid& other) const {return (this->getTop().p1()==other.getTop().p1())?true:false;}
+    inline bool operator!=(const Trapezoid& other) const {return !(this->getTop().p1()==other.getTop().p1())?true:false;}
+    inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}
     Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp);
     cg3::Segment2d getTop() const;
     void setTop(const cg3::Segment2d &value);
