@@ -2,20 +2,19 @@
 
 DagNodePoint::DagNodePoint(const cg3::Point2d& point) :
     point(point){
-    this->setLeftChild(new DagNodeArea());
-    this->setRightChild(new DagNodeArea());
-}
-DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :
-    segment(segment){
-    this->setLeftChild(new DagNodeArea());
-    this->setRightChild(new DagNodeArea());
-}
-DagNodeArea::DagNodeArea(){
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);
 }
-DagNodeArea::DagNodeArea(const Trapezoid &t){
-    this->trap = t;
+DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :
+    segment(segment){
+    this->setLeftChild(nullptr);
+    this->setRightChild(nullptr);
+}
+//DagNodeArea::DagNodeArea(){
+//    this->setLeftChild(nullptr);
+//    this->setRightChild(nullptr);
+//}
+DagNodeArea::DagNodeArea(const Trapezoid &t) : trap(t){
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);
 }
@@ -120,13 +119,14 @@ DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
 
 int DagNodeArea::oneOrBoth(const cg3::Segment2d &){}
 
-Trapezoid DagNodeArea::getT() const
+const Trapezoid& DagNodeArea::getT() const
 {
     return trap;
 }
 
-void DagNodeArea::setT(Trapezoid value)
+void DagNodeArea::setTrap(Trapezoid &value)
 {
-    trap = Trapezoid(value.getTop(), value.getBottom(), value.getLeftp(), value.getRightp());
-    //trap = value;
+    //trap(value);
 }
+
+

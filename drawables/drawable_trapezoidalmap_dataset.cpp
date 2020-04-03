@@ -25,7 +25,7 @@ void DrawableTrapezoidalMapDataset::draw() const
 //        cg3::opengl::drawLine2(itr.second.getTop().p2(),itr.second.getBottom().p2(), QColor(0,0,0), static_cast<int>(segmentSize)-2);
 //        //++itr;
 //    }
-    for (auto itr : Dag::getTrapezoids()){
+    for (auto itr : TrapezoidalMap::getTrapezoids()){
         cg3::opengl::drawQuad2(itr.getTop().p1(),itr.getTop().p2(),itr.getBottom().p2(),itr.getBottom().p1(), QColor(0,0,0));
         //++itr;
     }

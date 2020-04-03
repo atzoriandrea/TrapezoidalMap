@@ -1,16 +1,17 @@
 #include "trapezoid.h"
 
-Trapezoid::Trapezoid()
-{
+//Trapezoid::Trapezoid()
+//{
 
-}
+//}
 
-Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp)
+Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n)
 {
     this->top = top;
     this->bottom = bottom;
     this->leftp = leftp;
     this->rightp = rightp;
+    this->node = n;
 }
 
 cg3::Segment2d Trapezoid::getTop() const
@@ -52,5 +53,71 @@ void Trapezoid::setRightp(const cg3::Point2d &value)
 {
     rightp = value;
 }
+
+Trapezoid& Trapezoid::getLeftUp() const
+{
+    return *leftUp;
+}
+
+void Trapezoid::setLeftUp(Trapezoid &value)
+{
+    leftUp = &value;
+}
+
+Trapezoid& Trapezoid::getLeftDown() const
+{
+    return *leftDown;
+}
+
+void Trapezoid::setLeftDown(Trapezoid& value)
+{
+    leftDown = &value;
+}
+
+Trapezoid &Trapezoid::getRightUp() const
+{
+    return *rightUp;
+}
+
+void Trapezoid::setRightUp(Trapezoid &value)
+{
+    rightUp = &value;
+}
+
+Trapezoid &Trapezoid::getRightDown() const
+{
+    return *rightDown;
+}
+
+void Trapezoid::setRightDown(Trapezoid &value)
+{
+    rightDown = &value;
+}
+
+void Trapezoid::setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown)
+{
+    this->setLeftUp(leftUp);
+    this->setLeftDown(leftDown);
+    this->setRightUp(rightUp);
+    this->setRightDown(rightDown);
+}
+
+const DagNodeArea* Trapezoid::getNode()
+{
+    return node;
+}
+
+void Trapezoid::setNode(const DagNodeArea *value)
+{
+    node = value;
+}
+
+//void Trapezoid::setNode(const DagNodeArea &value)
+//{
+//    node = value;
+//}
+
+
+
 
 

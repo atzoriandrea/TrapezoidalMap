@@ -3,6 +3,7 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 #include "trapezoid.h"
+class Trapezoid;
 class DagNode{
 public:
     virtual DagNode* compareNodeToPoint(const cg3::Point2d& )=0;
@@ -12,6 +13,7 @@ public:
     void setLeftChild(DagNode *value);
     DagNode *getRightChild() const;
     void setRightChild(DagNode *value);
+
     DagNode ** lcPointerAddress();
     DagNode ** rcPointerAddress();
     virtual ~DagNode(){}
@@ -47,17 +49,21 @@ private:
 
 class DagNodeArea:public DagNode{
 public:
-    DagNodeArea();
+    DagNodeArea& operator=(const DagNodeArea& other){
+        *this = other;
+        return *this;
+    }
     DagNodeArea(const Trapezoid& t);
     DagNode *compareNodeToPoint(const cg3::Point2d& point)override ;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
-    Trapezoid getT() const;
-    void setT(const Trapezoid value);
+    const Trapezoid& getT() const;
+    //void setT(const Trapezoid& value) const;
+
+    void setTrap(Trapezoid &value);
 
 private:
-    std::string label;
-    Trapezoid trap;
+    const Trapezoid& trap;
 };
 
 #endif // DAG_NODE_H
