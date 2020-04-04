@@ -3,6 +3,7 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 #include "dag_node.h"
+
 class DagNodeArea;
 class Trapezoid
 {

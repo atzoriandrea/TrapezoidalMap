@@ -14,7 +14,7 @@ DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :
 //    this->setLeftChild(nullptr);
 //    this->setRightChild(nullptr);
 //}
-DagNodeArea::DagNodeArea(const Trapezoid &t) : trap(t){
+DagNodeArea::DagNodeArea(Trapezoid &t) : trap(t){
     this->setLeftChild(nullptr);
     this->setRightChild(nullptr);
 }
@@ -119,7 +119,7 @@ DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
 
 int DagNodeArea::oneOrBoth(const cg3::Segment2d &){}
 
-const Trapezoid& DagNodeArea::getT() const
+Trapezoid& DagNodeArea::getT() const
 {
     return trap;
 }

@@ -8,14 +8,14 @@ class TrapezoidalMap
 public:
     TrapezoidalMap();
 
-    static std::vector<Trapezoid>& getTrapezoids();
+    static std::list<Trapezoid>& getTrapezoids();
     static void addTrapezoids(std::vector<Trapezoid> vec);
-    static void addTrapezoid(Trapezoid t);
+    static void addTrapezoid(Trapezoid& t);
     static void removeTrapezoid(Trapezoid& t);
     static Trapezoid &getBoundingBox();
-    static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid>& heirs);
+    static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
 private:
-    static std::vector<Trapezoid> trapezoids;
+    static std::list<Trapezoid> trapezoids;
     static Trapezoid boundingBox;
 };
 

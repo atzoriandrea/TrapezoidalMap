@@ -53,17 +53,17 @@ public:
         *this = other;
         return *this;
     }
-    DagNodeArea(const Trapezoid& t);
+    DagNodeArea(Trapezoid& t);
     DagNode *compareNodeToPoint(const cg3::Point2d& point)override ;
     DagNode *compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
-    const Trapezoid& getT() const;
+    Trapezoid& getT() const;
     //void setT(const Trapezoid& value) const;
 
     void setTrap(Trapezoid &value);
 
 private:
-    const Trapezoid& trap;
+    Trapezoid& trap;
 };
 
 #endif // DAG_NODE_H

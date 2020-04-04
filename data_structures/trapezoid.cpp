@@ -12,6 +12,10 @@ Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d lef
     this->leftp = leftp;
     this->rightp = rightp;
     this->node = n;
+    this->leftUp=nullptr;
+    this->rightUp=nullptr;
+    this->leftDown=nullptr;
+    this->rightDown=nullptr;
 }
 
 cg3::Segment2d Trapezoid::getTop() const
