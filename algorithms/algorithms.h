@@ -8,6 +8,7 @@
 
 
 cg3::Point2d intersection(const cg3::Segment2d & edge, const cg3::Point2d &point);
+long double matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point);
 //void bind(Trapezoid& t, DagNodeArea* node);
 
 

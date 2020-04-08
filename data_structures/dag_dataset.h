@@ -13,11 +13,12 @@ class Dag{
 public:
     Dag();
     static void innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful);
-    static DagNode* addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment);
+    static DagNodePoint* addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment);
     static void addSegment(cg3::Segment2d& segment);
     static void addMultiTrapezoidalSegment(cg3::Segment2d& segment);
-    static DagNode * searchPoint(const cg3::Point2d& point);
+    static DagNode& searchPoint(const cg3::Point2d& point);
     static DagNode * splitNode(cg3::Segment2d& segment);
+    static void followSegment(cg3::Segment2d& segment, DagNodeArea& leaf);
     static DagNode *getDag();
     static std::vector<std::pair<DagNode **, DagNode*>> tempmap;
     static DagNode * bind(Trapezoid&);

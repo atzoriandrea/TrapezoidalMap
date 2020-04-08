@@ -7,26 +7,23 @@ Dag::Dag(){
     tempmap = {};
 }
 void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
-    DagNode* split;
     //DagNode* test;
-    DagNodeArea* insert;
+
+    //DagNodeArea*& insValue = insert;
     //DagNode* s2;
     DagNode* dg;
     if(Dag::dag!=nullptr && Dag::dag->getLeftChild()!=nullptr){
-        Dag::tempmap= {};
-        split = splitNode(segment);
-        innerNodes(split,segment,split);
-        if(Dag::tempmap.size()==1){
-            insert = dynamic_cast<DagNodeArea*>(*Dag::tempmap.front().first);
-            dg = addSegmentInSingleTrap(insert, segment);
-            if(split->getLeftChild() == insert)
-                split->setLeftChild(dg);
-            if(split->getRightChild() == insert)
-                split->setRightChild(dg);
-
+//        Dag::tempmap= {};
+//        split = splitNode(segment);
+//        innerNodes(split,segment,split);
+        DagNode& insert = searchPoint(segment.p1());
+        if(segment.p2().x()<dynamic_cast<DagNodeArea&>(insert).getT().getRightp().x()){
+            dg = addSegmentInSingleTrap(dynamic_cast<DagNodeArea*>(&insert), segment);
+            insert = *dg;
+            printf("wait");
         }
         else{
-            //addMultiTrapezoidalSegment(segment);
+            followSegment(segment, dynamic_cast<DagNodeArea&>(insert));
         }
     }
     else{
@@ -35,11 +32,11 @@ void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
     }
 
 }
-DagNode* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment){
+DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment){
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
     std::vector<Trapezoid*> iterators(4);
-    DagNode* dg = new DagNodePoint(segment.p1());
+    DagNodePoint* dg = new DagNodePoint(segment.p1());
     DagNode* dg2 = new DagNodePoint(segment.p2());
     DagNode* dgs = new DagNodeSegment(segment);
     Trapezoid& trap = {node->getT()};
@@ -298,53 +295,51 @@ DagNode* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment
 
 //};
 
-void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful){
-    enum direction { left = 1, right = 2, both = 3 };
-    int chosen = split->oneOrBoth(segment);
-    if(strcmp(typeid(*meaningful).name(),"12DagNodePoint")==0 && strcmp(typeid(*split).name(),"12DagNodePoint")==0){
-        meaningful = split;
-    }
-    if(strcmp(typeid(*split).name(),"14DagNodeSegment")==0){
-        meaningful = split;
-    }
-     if(chosen==both){
-        if(split->getLeftChild()->getLeftChild()==nullptr){
-            tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
-            innerNodes(split->getRightChild(),segment,meaningful);
-        }
-        else if(split->getRightChild()->getRightChild()==nullptr){
-            innerNodes(split->getLeftChild(),segment,meaningful);
-            tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
+//void Dag::innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful){
+//    enum direction { left = 1, right = 2, both = 3 };
+//    int chosen = split->oneOrBoth(segment);
+//    if(strcmp(typeid(*meaningful).name(),"12DagNodePoint")==0 && strcmp(typeid(*split).name(),"12DagNodePoint")==0){
+//        meaningful = split;
+//    }
+//    if(strcmp(typeid(*split).name(),"14DagNodeSegment")==0){
+//        meaningful = split;
+//    }
+//     if(chosen==both){
+//        if(split->getLeftChild()->getLeftChild()==nullptr){
+//            tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
+//            innerNodes(split->getRightChild(),segment,meaningful);
+//        }
+//        else if(split->getRightChild()->getRightChild()==nullptr){
+//            innerNodes(split->getLeftChild(),segment,meaningful);
+//            tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
 
-        }
-        else{
-            innerNodes(split->getLeftChild(),segment,meaningful);
-            innerNodes(split->getRightChild(),segment,meaningful);
-        }
-    }
-    if(chosen==right){
-        if(split->getRightChild()->getRightChild()==nullptr){
-            tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
-        }
-        else
-            innerNodes(split->getRightChild(),segment,meaningful);
-    }
-    if(chosen==left){
-        if(split->getLeftChild()->getLeftChild()==nullptr){
-            tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
-        }
-        else
-            innerNodes(split->getLeftChild(),segment,meaningful);
-    }
-}
-DagNode* Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
+//        }
+//        else{
+//            innerNodes(split->getLeftChild(),segment,meaningful);
+//            innerNodes(split->getRightChild(),segment,meaningful);
+//        }
+//    }
+//    if(chosen==right){
+//        if(split->getRightChild()->getRightChild()==nullptr){
+//            tempmap.push_back(std::make_pair(split->rcPointerAddress(),meaningful));
+//        }
+//        else
+//            innerNodes(split->getRightChild(),segment,meaningful);
+//    }
+//    if(chosen==left){
+//        if(split->getLeftChild()->getLeftChild()==nullptr){
+//            tempmap.push_back(std::make_pair(split->lcPointerAddress(),meaningful));
+//        }
+//        else
+//            innerNodes(split->getLeftChild(),segment,meaningful);
+//    }
+//}
+DagNode& Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
     DagNode* tmpdag=Dag::dag;
-    if (tmpdag == nullptr)
-        return nullptr;
     while(tmpdag->getLeftChild()!=nullptr && tmpdag->getRightChild()!=nullptr){
         tmpdag = tmpdag->compareNodeToPoint(point);
     }
-    return tmpdag;
+    return *tmpdag;
 
 }
 
@@ -365,6 +360,23 @@ DagNode *Dag::splitNode(cg3::Segment2d &segment) //O(log n)
             splitted = true;
     }
     return tmpdag;
+}
+
+void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea &leaf){
+    std::vector<const DagNodeArea*> leaves;
+    leaves.push_back(&leaf);
+    int size = leaves.size();
+    while (segment.p2().x() > leaves[size-1]->getT().getRightp().x()) {
+        if(matrixDet(segment, leaves[size-1]->getT().getRightp())<0){
+            leaves.push_back(leaves[size-1]->getT().getRightUp().getNode());
+        }
+        else{
+            leaves.push_back(leaves[size-1]->getT().getRightDown().getNode());
+        }
+
+        size++;
+    }
+    printf("suga");
 }
 
 DagNode *Dag::bind(Trapezoid & trap)

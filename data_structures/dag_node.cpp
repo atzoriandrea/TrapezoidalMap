@@ -1,42 +1,15 @@
 #include <data_structures/dag_node.h>
 
-DagNodePoint::DagNodePoint(const cg3::Point2d& point) :
-    point(point){
-    this->setLeftChild(nullptr);
-    this->setRightChild(nullptr);
-}
-DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :
-    segment(segment){
-    this->setLeftChild(nullptr);
-    this->setRightChild(nullptr);
-}
-//DagNodeArea::DagNodeArea(){
-//    this->setLeftChild(nullptr);
-//    this->setRightChild(nullptr);
-//}
-DagNodeArea::DagNodeArea(Trapezoid &t) : trap(t){
-    this->setLeftChild(nullptr);
-    this->setRightChild(nullptr);
-}
+DagNode::DagNode(): lcValue(nullptr), rcValue(nullptr), leftChild(lcValue), rightChild(rcValue){}
+DagNodePoint::DagNodePoint(const cg3::Point2d& point) :point(point){}
+DagNodeSegment::DagNodeSegment(const cg3::Segment2d& segment) :segment(segment){}
+DagNodeArea::DagNodeArea(Trapezoid &t) : trap(t){}
 
-
-//verfica se il punto point è sopra o sotto il segmento calcolando il determinante di [[sx1,sy1,1][sx2,sy2,1][px,py,1]]
-long double matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point){
-    double reducer = 100000.0;
-    double mat[3][3] = {{(segment.p1().x()/reducer),(segment.p1().y()/reducer),1.0},
-                                           {(segment.p2().x()/reducer),(segment.p2().y()/reducer), 1.0},
-                                           {(point.x()/reducer), (point.y()/reducer),1.0}};
-    return mat[0][0]*((mat[1][1]*mat[2][2]) - (mat[2][1]*mat[1][2]))
-            -mat[0][1]*(mat[1][0]*mat[2][2] - mat[2][0]*mat[1][2]) +
-            mat[0][2]*(mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1]);
-}
-
-//template<typename T>
-DagNode *DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
+DagNode *&DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
     return (this->point.x()>point.x())? this->getLeftChild() : this->getRightChild();
 }
 
-DagNode *DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
+DagNode *&DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
     if(segment.p2().x()<this->point.x())
         return this->getLeftChild();
     if(segment.p1().x()>this->point.x())
@@ -56,13 +29,13 @@ int DagNodePoint::oneOrBoth(const cg3::Segment2d & segment)
     return (this->compareNodeToSegment(segment)==this->getLeftChild())? left : right;
 }
 //template<typename T>
-DagNode *DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
+DagNode *& DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     long double res;
     res = matrixDet(this->segment, point);
     return (res < 0)? this->getRightChild():this->getLeftChild();
 }
 
-DagNode *DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
+DagNode *&DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
     long double c1 = matrixDet(segment, this->segment.p1());
     long double c2 = matrixDet(segment, this->segment.p2());
     if((c1 < 0 && c2 > 0) ||( c1 > 0 && c2 < 0 )){
@@ -80,25 +53,17 @@ int DagNodeSegment::oneOrBoth(const cg3::Segment2d & segment)
 }
 
 
-DagNode * DagNode::getLeftChild() const
+DagNode *& DagNode::getLeftChild() const
 {
     return leftChild;
 }
 
-void DagNode::setLeftChild(DagNode *value)
+void DagNode::setLeftChild(DagNode * const value)
 {
     leftChild = value;
 }
 
-DagNode * DagNode::getRightChild() const
-{
-    return rightChild;
-}
 
-void DagNode::setRightChild(DagNode *value)
-{
-    rightChild = value;
-}
 
 DagNode **DagNode::lcPointerAddress()
 {
@@ -110,11 +75,21 @@ DagNode **DagNode::rcPointerAddress()
     return &rightChild;
 }
 
+DagNode *&DagNode::getRightChild() const
+{
+    return rightChild;
+}
+
+void DagNode::setRightChild(DagNode * const &value)
+{
+    rightChild = value;
+}
 
 
-DagNode *DagNodeArea::compareNodeToPoint(const cg3::Point2d &point){}
 
-DagNode *DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
+DagNode *&DagNodeArea::compareNodeToPoint(const cg3::Point2d &point){}
+
+DagNode *&DagNodeArea::compareNodeToSegment(const cg3::Segment2d &segment){}
 
 
 int DagNodeArea::oneOrBoth(const cg3::Segment2d &){}
