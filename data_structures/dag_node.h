@@ -8,15 +8,17 @@ class Trapezoid;
 class DagNode{
 public:
     DagNode();
-    DagNode& operator=(DagNode& other){
-        *this = other;
-        return *this;
-    }
+//    DagNode& operator=(DagNode* other){
+//        return *other;
+//    }
+
     virtual DagNode*& compareNodeToPoint(const cg3::Point2d& )=0;
     virtual DagNode*& compareNodeToSegment(const cg3::Segment2d& )=0;
     virtual int oneOrBoth(const cg3::Segment2d&)=0;
     DagNode *&getLeftChild() const;
     void setLeftChild(DagNode *value);
+
+    DagNode*& getAddress();
     DagNode ** lcPointerAddress();
     DagNode ** rcPointerAddress();
     virtual ~DagNode(){}
@@ -61,7 +63,10 @@ public:
         *this = other;
         return *this;
     }
-
+    DagNode* operator=(DagNodePoint * other){
+        *this = other;
+        return this;
+    }
     DagNodeArea(Trapezoid& t);
     DagNode *&compareNodeToPoint(const cg3::Point2d& point)override ;
     DagNode *&compareNodeToSegment(const cg3::Segment2d& segment) override;

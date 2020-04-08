@@ -5,8 +5,7 @@
 
 //}
 
-Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n)
-{
+Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n):defaultNode(nullptr), node(defaultNode){
     this->top = top;
     this->bottom = bottom;
     this->leftp = leftp;

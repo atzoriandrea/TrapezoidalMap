@@ -58,6 +58,12 @@ DagNode *& DagNode::getLeftChild() const
     return leftChild;
 }
 
+//DagNode*& DagNode::getAddress()
+//{
+//    static DagNode const &v = *this;
+//    return v;
+//}
+
 void DagNode::setLeftChild(DagNode * const value)
 {
     leftChild = value;

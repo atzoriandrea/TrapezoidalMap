@@ -7,31 +7,20 @@ Dag::Dag(){
     tempmap = {};
 }
 void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
-    //DagNode* test;
-
-    //DagNodeArea*& insValue = insert;
-    //DagNode* s2;
-    DagNode* dg;
     if(Dag::dag!=nullptr && Dag::dag->getLeftChild()!=nullptr){
-//        Dag::tempmap= {};
-//        split = splitNode(segment);
-//        innerNodes(split,segment,split);
-        DagNode& insert = searchPoint(segment.p1());
-        if(segment.p2().x()<dynamic_cast<DagNodeArea&>(insert).getT().getRightp().x()){
-            dg = addSegmentInSingleTrap(dynamic_cast<DagNodeArea*>(&insert), segment);
-            insert = *dg;
-            printf("wait");
-        }
-        else{
-            followSegment(segment, dynamic_cast<DagNodeArea&>(insert));
-        }
+        DagNode *& ins = searchAndAppend(segment.p1());
+        if(segment.p2().x()<dynamic_cast<DagNodeArea*>(ins)->getT().getRightp().x())
+            ins = addSegmentInSingleTrap(dynamic_cast<DagNodeArea*>(ins), segment);
+        else
+            followSegment(segment, dynamic_cast<DagNodeArea&>(*ins));
     }
     else{
         Dag::dag = addSegmentInSingleTrap(dynamic_cast<DagNodeArea*>(Dag::dag), segment);
-
     }
 
 }
+
+
 DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment){
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
@@ -50,10 +39,6 @@ DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& se
                                     Trapezoid(cg3::Segment2d(segment.p1(),segment.p2()),cg3::Segment2d(ints[2],ints[3]), segment.p1(), segment.p2(),nullptr),
                                     Trapezoid(cg3::Segment2d(ints[1], trap.getTop().p2()),
                                         cg3::Segment2d(ints[3], trap.getBottom().p2()),segment.p2(), trap.getRightp(),nullptr)};
-
-
-
-
     TrapezoidalMap::addTrapezoids(traps);
     itr = ref.end();
     iterators[3] = &*(--itr);
@@ -334,13 +319,27 @@ DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& se
 //            innerNodes(split->getLeftChild(),segment,meaningful);
 //    }
 //}
-DagNode& Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
+DagNode * Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
     DagNode* tmpdag=Dag::dag;
     while(tmpdag->getLeftChild()!=nullptr && tmpdag->getRightChild()!=nullptr){
         tmpdag = tmpdag->compareNodeToPoint(point);
     }
-    return *tmpdag;
+    return tmpdag;
 
+}
+
+DagNode *&Dag::searchAndAppend(const cg3::Point2d &point)
+{
+    DagNode* tmpdag=Dag::dag;
+    DagNode* chosen=Dag::dag;
+    while(tmpdag->getLeftChild()!=nullptr && tmpdag->getRightChild()!=nullptr){
+        chosen = tmpdag;
+        tmpdag = tmpdag->compareNodeToPoint(point);
+    }
+    if(chosen->lcValue == tmpdag)
+        return chosen->getLeftChild();
+    if(chosen->rcValue == tmpdag)
+        return chosen->getRightChild();
 }
 
 DagNode *Dag::splitNode(cg3::Segment2d &segment) //O(log n)
@@ -368,15 +367,50 @@ void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea &leaf){
     int size = leaves.size();
     while (segment.p2().x() > leaves[size-1]->getT().getRightp().x()) {
         if(matrixDet(segment, leaves[size-1]->getT().getRightp())<0){
-            leaves.push_back(leaves[size-1]->getT().getRightUp().getNode());
+            //leaves.push_back(leaves[size-1]->getT().getRightUp().getNode());
         }
         else{
-            leaves.push_back(leaves[size-1]->getT().getRightDown().getNode());
+            //leaves.push_back(leaves[size-1]->getT().getRightDown().getNode());
         }
 
         size++;
     }
-    printf("suga");
+}
+
+DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
+    std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
+    std::list<Trapezoid>::iterator itr;
+    std::vector<Trapezoid*> iterators(4);
+    DagNodePoint* pi = new DagNodePoint(segment.p1());
+    DagNode* si = new DagNodeSegment(segment);
+    Trapezoid& trap = leaf.getT();
+    std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
+                                      intersection(trap.getBottom(), segment.p1()),
+                                      intersection(segment, trap.getTop().p2())};
+    std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+                                    cg3::Segment2d(trap.getBottom().p1(),ints[1]),
+                                    trap.getLeftp() , segment.p1(), nullptr),
+                                    Trapezoid(cg3::Segment2d(ints[0],trap.getTop().p2()),
+                                    cg3::Segment2d(segment.p1(), intersection(segment,trap.getBottom().p2())),
+                                    segment.p1(), ints[2], nullptr),
+                                    Trapezoid(cg3::Segment2d(segment.p1(),ints[2]),
+                                    cg3::Segment2d(ints[1], trap.getBottom().p2()),
+                                    segment.p1(), ints[2],nullptr)};
+    TrapezoidalMap::addTrapezoids(traps);
+    itr = ref.end();
+    iterators[2] = &*(--itr);
+    iterators[1] = &*(--itr);
+    iterators[0] = &*(--itr);
+}
+
+DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf)
+{
+
+}
+
+DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf)
+{
+
 }
 
 DagNode *Dag::bind(Trapezoid & trap)

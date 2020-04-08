@@ -55,11 +55,12 @@ public:
     void setNode(const DagNodeArea *value);
 
 private:
+    const DagNodeArea* defaultNode;
     cg3::Segment2d top;
     cg3::Segment2d bottom;
     cg3::Point2d leftp;
     cg3::Point2d rightp;
-    const DagNodeArea* node;
+    const DagNodeArea*& node;
     Trapezoid* leftUp;
     Trapezoid* leftDown;
     Trapezoid* rightUp;
