@@ -72,8 +72,6 @@ public:
     DagNode *&compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
     Trapezoid& getT() const;
-    //void setT(const Trapezoid& value) const;
-
     void setTrap(Trapezoid &value);
 
 private:

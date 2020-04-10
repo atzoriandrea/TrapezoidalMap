@@ -55,6 +55,11 @@ void TrapezoidalMap::removeTrapezoid(Trapezoid &tr)
 
 }
 
+//void TrapezoidalMap::replaceTrapezoid(Trapezoid &old, Trapezoid& substitute)
+//{
+//    std::replace(trapezoids.begin(), trapezoids.end(), old, substitute);
+//}
+
 Trapezoid &TrapezoidalMap::getBoundingBox()
 {
     return boundingBox;
@@ -62,10 +67,6 @@ Trapezoid &TrapezoidalMap::getBoundingBox()
 
 void TrapezoidalMap::updateNeighbors(const Trapezoid &t, std::vector<Trapezoid*>& heirs)
 {
-//    heirs[0].setNeighbors(t.getLeftUp(),t.getLeftDown(),heirs[1], heirs[2]);
-//    heirs[1].setNeighbors(heirs[0],heirs[0], heirs[3], heirs[3]);
-//    heirs[2].setNeighbors(heirs[0],heirs[0], heirs[3], heirs[3]);
-//    heirs[3].setNeighbors(heirs[1], heirs[2], t.getRightUp(), t.getRightDown());
     if(t==TrapezoidalMap::boundingBox)
         return;
     Trapezoid* leftUp = &t.getLeftUp();
@@ -100,4 +101,56 @@ void TrapezoidalMap::updateNeighbors(const Trapezoid &t, std::vector<Trapezoid*>
             rightDown->setLeftDown(*heirs[3]);
         }
     }
+}
+
+void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vector<Trapezoid *> &heirs, int type)
+{
+    enum insertionType {leftmost = 0, intermediate = 1, rightmost = 2};
+    Trapezoid* leftUp = &t.getLeftUp();
+    Trapezoid* leftDown = &t.getLeftDown();
+    Trapezoid* rightUp = &t.getRightUp();
+    Trapezoid* rightDown = &t.getRightDown();
+    if(type==leftmost){
+        if(leftUp !=nullptr && leftDown !=nullptr){
+            if(leftUp==leftDown){
+                if(t.getTop().p1()==leftUp->getRightp())
+                    leftUp->setRightDown(*heirs[0]);
+                else
+                    leftUp->setRightUp(*heirs[0]);
+            }
+            else{
+                leftUp->setRightUp(*heirs[0]);
+                leftUp->setRightDown(*heirs[0]);
+                leftDown->setRightUp(*heirs[0]);
+                leftDown->setRightDown(*heirs[0]);
+            }
+        }
+        if(rightUp !=nullptr && rightDown !=nullptr){
+            if (rightUp==rightDown){
+                if(t.getTop().p2()==rightUp->getLeftp()){
+                    rightUp->setLeftDown(*heirs[1]);
+
+                }else
+                    rightUp->setLeftUp(*heirs[2]);
+            }
+            else{
+                if(heirs[1]->getBottom().p2().y()>rightUp->getBottom().p1().y()){
+                    rightUp->setLeftUp(*heirs[1]);
+                    rightUp->setLeftDown(*heirs[2]);
+                    rightDown->setLeftUp(*heirs[2]);
+                    rightDown->setLeftDown(*heirs[2]);
+                }
+                else{
+                    rightUp->setLeftUp(*heirs[1]);
+                    rightUp->setLeftDown(*heirs[1]);
+                    rightDown->setLeftUp(*heirs[1]);
+                    rightDown->setLeftDown(*heirs[2]);
+                }
+            }
+        }
+    }
+    if(type==intermediate){
+
+    }
+    
 }

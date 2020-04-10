@@ -48,19 +48,26 @@ public:
 
     void setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown);
 
-    const DagNodeArea* getNode();
+    DagNodeArea* getNode();
 
-//    void setNode(const DagNodeArea &value);
+    //void setNode(DagNodeArea &value);
 
-    void setNode(const DagNodeArea *value);
+    void setNode(DagNodeArea *value);
+
+    std::list<Trapezoid>::iterator getItr() const;
+    void setItr(const std::list<Trapezoid>::iterator &value);
+
+    void merge(Trapezoid& tLeft, Trapezoid& tRight, std::vector<std::list<Trapezoid>::iterator>&);
+
 
 private:
-    const DagNodeArea* defaultNode;
+    std::list<Trapezoid>::iterator itr;
+    DagNodeArea* defaultNode;
     cg3::Segment2d top;
     cg3::Segment2d bottom;
     cg3::Point2d leftp;
     cg3::Point2d rightp;
-    const DagNodeArea*& node;
+    DagNodeArea*& node;
     Trapezoid* leftUp;
     Trapezoid* leftDown;
     Trapezoid* rightUp;

@@ -105,17 +105,52 @@ void Trapezoid::setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &r
     this->setRightDown(rightDown);
 }
 
-const DagNodeArea* Trapezoid::getNode()
+DagNodeArea* Trapezoid::getNode()
 {
     return node;
 }
 
-void Trapezoid::setNode(const DagNodeArea *value)
+void Trapezoid::setNode(DagNodeArea *value)
 {
     node = value;
 }
 
-//void Trapezoid::setNode(const DagNodeArea &value)
+std::list<Trapezoid>::iterator Trapezoid::getItr() const
+{
+    return itr;
+}
+
+void Trapezoid::setItr(const std::list<Trapezoid>::iterator &value)
+{
+    itr = value;
+}
+
+void merge(Trapezoid &tLeft, Trapezoid &tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
+{
+    DagNodeArea * tLeftLeaf = tLeft.getNode();
+    tRight.setLeftp(tLeft.getLeftp());
+    tRight.setLeftUp(tLeft.getLeftUp());
+    tRight.setLeftDown(tLeft.getLeftDown());
+    tRight.setTop(cg3::Segment2d(tLeft.getTop().p1(), tRight.getTop().p2()));
+    tRight.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), tRight.getBottom().p2()));
+    if(tLeft.getLeftUp().getRightUp()==tLeft)
+        tLeft.getLeftUp().setRightUp(tRight);
+
+    if(tLeft.getLeftUp().getRightDown()==tLeft)
+        tLeft.getLeftUp().setRightDown(tRight);
+
+    if(tLeft.getLeftDown().getRightUp()==tLeft)
+        tLeft.getLeftDown().setRightUp(tRight);
+
+    if(tLeft.getLeftDown().getRightDown()==tLeft)
+        tLeft.getLeftDown().setRightDown(tRight);
+
+    tLeftLeaf->setTrap(tRight);
+    garbageCollector.push_back(tLeft.getItr());
+    //TrapezoidalMap::removeTrapezoid(tLeft);
+}
+
+//void Trapezoid::setNode(DagNodeArea &value)
 //{
 //    node = value;
 //}

@@ -5,6 +5,7 @@
 #include "cg3/geometry/line2.h"
 #include <data_structures/dag_node.h>
 #include <data_structures/trapezoid.h>
+//#include <data_structures/trapezoidalmap.h>
 
 
 cg3::Point2d intersection(const cg3::Segment2d & edge, const cg3::Point2d &point);

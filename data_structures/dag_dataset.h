@@ -15,9 +15,9 @@ public:
     static void innerNodes(DagNode *split, cg3::Segment2d &segment, DagNode* meaningful);
     static DagNodePoint* addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& segment);
     static void addSegment(cg3::Segment2d& segment);
-    static DagNode* createLeftMost(cg3::Segment2d& segment, DagNodeArea& leaf);
-    static DagNode* createRightMost(cg3::Segment2d& segment, DagNodeArea& leaf);
-    static DagNode* createIntermediate(cg3::Segment2d& segment, DagNodeArea& leaf);
+    static DagNode* createLeftMost(cg3::Segment2d& segment, DagNodeArea& leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector);
+    static DagNode* createRightMost(cg3::Segment2d& segment, DagNodeArea& leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector);
+    static DagNode* createIntermediate(cg3::Segment2d& segment, DagNodeArea& leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector);
 
     static void addMultiTrapezoidalSegment(cg3::Segment2d& segment);
     static DagNode * searchPoint(const cg3::Point2d& point);

@@ -42,9 +42,13 @@ DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& se
     TrapezoidalMap::addTrapezoids(traps);
     itr = ref.end();
     iterators[3] = &*(--itr);
+    iterators[3]->setItr(itr);
     iterators[2] = &*(--itr);
+    iterators[2]->setItr(itr);
     iterators[1] = &*(--itr);
+    iterators[1]->setItr(itr);
     iterators[0] = &*(--itr);
+    iterators[0]->setItr(itr);
     TrapezoidalMap::updateNeighbors(trap, iterators);
     iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftDown(),*iterators[1], *iterators[2]);
     iterators[1]->setNeighbors(*iterators[0],*iterators[0], *iterators[3], *iterators[3]);
@@ -72,7 +76,7 @@ DagNodePoint* Dag::addSegmentInSingleTrap(DagNodeArea * node, cg3::Segment2d& se
 //    bool nextDir;
 //    bool currentDirectionUp;
 //    std::vector<cg3::Point2d> ints ;
-//    std::vector<Trapezoid> traps;
+//    std::vector<Trapezoid> traps;std::vector<std::list<Trapezoid>::iterator>& garbageCollector
 //    for (itr = Dag::tempmap.begin(); itr!=Dag::tempmap.end(); ++itr){
 //        if(itr==Dag::tempmap.begin()){
 //            /*Traps*/
@@ -363,24 +367,29 @@ DagNode *Dag::splitNode(cg3::Segment2d &segment) //O(log n)
 
 void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea &leaf){
     std::vector<const DagNodeArea*> leaves;
+    std::vector<std::list<Trapezoid>::iterator> garbage;
     leaves.push_back(&leaf);
     int size = leaves.size();
+
     while (segment.p2().x() > leaves[size-1]->getT().getRightp().x()) {
+        garbage.push_back(leaves[size-1]->getT().getItr());
         if(matrixDet(segment, leaves[size-1]->getT().getRightp())<0){
-            //leaves.push_back(leaves[size-1]->getT().getRightUp().getNode());
+            leaves.push_back(leaves[size-1]->getT().getRightUp().getNode());
+
         }
         else{
-            //leaves.push_back(leaves[size-1]->getT().getRightDown().getNode());
+            leaves.push_back(leaves[size-1]->getT().getRightDown().getNode());
         }
 
+        if(size==1)
         size++;
     }
 }
 
-DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
+DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector){
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
-    std::vector<Trapezoid*> iterators(4);
+    std::vector<Trapezoid*> iterators(3);
     DagNodePoint* pi = new DagNodePoint(segment.p1());
     DagNode* si = new DagNodeSegment(segment);
     Trapezoid& trap = leaf.getT();
@@ -399,16 +408,68 @@ DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
     TrapezoidalMap::addTrapezoids(traps);
     itr = ref.end();
     iterators[2] = &*(--itr);
+    iterators[2]->setItr(itr);
     iterators[1] = &*(--itr);
+    iterators[1]->setItr(itr);
     iterators[0] = &*(--itr);
+    iterators[0]->setItr(itr);
+    //TODO
+    garbageCollector.push_back(trap.getItr());
+    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 1);
+    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftDown(),*iterators[1], *iterators[2]); //
+    iterators[1]->setNeighbors(*iterators[0],*iterators[0], trap.getRightUp(), trap.getRightUp());// be careful on right side neighbors
+    iterators[2]->setNeighbors(*iterators[0],*iterators[0], trap.getRightDown(), trap.getRightDown());//also there
+
+    pi->setLeftChild(bind(*iterators[0]));
+    pi->setRightChild(si);
+    si->setLeftChild(bind(*iterators[1]));
+    si->setRightChild(bind(*iterators[2]));
+    return pi;
 }
 
-DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf)
+DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
 {
+    std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
+    std::list<Trapezoid>::iterator itr;
+    std::vector<Trapezoid*> iterators(3);
+    DagNodePoint* qi = new DagNodePoint(segment.p2());
+    DagNode* si = new DagNodeSegment(segment);
+    Trapezoid& trap = leaf.getT();
+    std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p2()),
+                                      intersection(trap.getBottom(), segment.p2()),
+                                      intersection(segment, trap.getTop().p1())};
+    std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+                                    cg3::Segment2d(ints[3], segment.p2()),
+                                    (trap.getLeftp().y()<ints[3].y())?ints[3]:trap.getLeftp() , segment.p2(), nullptr),
+                                    Trapezoid(cg3::Segment2d(ints[3],segment.p2()),
+                                    cg3::Segment2d(trap.getBottom().p1(), ints[1]),
+                                    (trap.getLeftp().y()>ints[3].y())?ints[3]:trap.getLeftp(), ints[2], nullptr),
+                                    Trapezoid(cg3::Segment2d(ints[0],trap.getTop().p2()),
+                                    cg3::Segment2d(ints[1], trap.getBottom().p2()),
+                                    segment.p2(), trap.getRightp(),nullptr)};
+    TrapezoidalMap::addTrapezoids(traps);
+    itr = ref.end();
+    iterators[2] = &*(--itr);
+    iterators[2]->setItr(itr);
+    iterators[1] = &*(--itr);
+    iterators[1]->setItr(itr);
+    iterators[0] = &*(--itr);
+    iterators[0]->setItr(itr);
+    //TODO
+    garbageCollector.push_back(trap.getItr());
+    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 3);
+    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftDown(),*iterators[1], *iterators[2]);//
+    iterators[1]->setNeighbors(*iterators[0],*iterators[0], *iterators[3], *iterators[3]);//
+    iterators[2]->setNeighbors(*iterators[0],*iterators[0], *iterators[3], *iterators[3]);//
 
+    pi->setLeftChild(bind(*iterators[0]));
+    pi->setRightChild(si);
+    si->setLeftChild(bind(*iterators[1]));
+    si->setRightChild(bind(*iterators[2]));
+    return pi;
 }
 
-DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf)
+DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
 {
 
 }
