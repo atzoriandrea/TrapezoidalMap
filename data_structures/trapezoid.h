@@ -49,6 +49,7 @@ public:
     void setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown);
 
     DagNodeArea* getNode();
+    DagNodeArea*& getNodeRef();
 
     //void setNode(DagNodeArea &value);
 
@@ -57,7 +58,6 @@ public:
     std::list<Trapezoid>::iterator getItr() const;
     void setItr(const std::list<Trapezoid>::iterator &value);
 
-    void merge(Trapezoid& tLeft, Trapezoid& tRight, std::vector<std::list<Trapezoid>::iterator>&);
 
 
 private:

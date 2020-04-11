@@ -105,7 +105,7 @@ Trapezoid& DagNodeArea::getT() const
     return trap;
 }
 
-void DagNodeArea::setTrap(Trapezoid &value)
+void DagNodeArea::setTrap(Trapezoid &value) const
 {
     trap=value;
 }

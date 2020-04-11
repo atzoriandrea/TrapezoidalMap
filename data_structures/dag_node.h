@@ -67,12 +67,16 @@ public:
         *this = other;
         return this;
     }
+    DagNodeArea& operator=(DagNode * other){
+        *this = other;
+        return *this;
+    }
     DagNodeArea(Trapezoid& t);
     DagNode *&compareNodeToPoint(const cg3::Point2d& point)override ;
     DagNode *&compareNodeToSegment(const cg3::Segment2d& segment) override;
     int oneOrBoth(const cg3::Segment2d&) override;
     Trapezoid& getT() const;
-    void setTrap(Trapezoid &value);
+    void setTrap(Trapezoid &value) const;
 
 private:
     Trapezoid& trap;
