@@ -1,11 +1,11 @@
 #include "trapezoid.h"
 
-//Trapezoid::Trapezoid()
-//{
+Trapezoid::Trapezoid()
+{
 
-//}
+}
 
-Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n):defaultNode(nullptr), node(defaultNode){
+Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n){
     this->top = top;
     this->bottom = bottom;
     this->leftp = leftp;
@@ -105,14 +105,15 @@ void Trapezoid::setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &r
     this->setRightDown(rightDown);
 }
 
-DagNodeArea* Trapezoid::getNode()
+DagNodeArea* Trapezoid::getNode() const
 {
     return node;
 }
 
 DagNodeArea *&Trapezoid::getNodeRef()
 {
-    return node;
+    DagNodeArea*& ref = node;
+    return ref;
 }
 
 void Trapezoid::setNode(DagNodeArea *value)

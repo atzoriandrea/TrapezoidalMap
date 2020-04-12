@@ -9,7 +9,17 @@ class Trapezoid
 {
 public:
     Trapezoid();
-    Trapezoid& operator=(const Trapezoid& other){
+    Trapezoid& operator=(Trapezoid& other){
+        *this = other;
+        //this->defaultNode=other.defaultNode;
+        //this->setNode(this->defaultNode);
+        return *this;
+    }
+    const Trapezoid& operator=(const Trapezoid& other) const{
+        *this = other;
+        return *this;
+    }
+    Trapezoid& operator=(Trapezoid *other){
         *this = other;
         return *this;
     }
@@ -48,7 +58,7 @@ public:
 
     void setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown);
 
-    DagNodeArea* getNode();
+    DagNodeArea* getNode() const;
     DagNodeArea*& getNodeRef();
 
     //void setNode(DagNodeArea &value);
@@ -62,12 +72,12 @@ public:
 
 private:
     std::list<Trapezoid>::iterator itr;
-    DagNodeArea* defaultNode;
+    DagNodeArea* node;
     cg3::Segment2d top;
     cg3::Segment2d bottom;
     cg3::Point2d leftp;
     cg3::Point2d rightp;
-    DagNodeArea*& node;
+    //DagNodeArea*& node;
     Trapezoid* leftUp;
     Trapezoid* leftDown;
     Trapezoid* rightUp;

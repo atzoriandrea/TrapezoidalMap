@@ -26,7 +26,7 @@ public:
     static void followSegment(cg3::Segment2d& segment, DagNodeArea& leaf);
     static DagNode *getDag();
     static std::vector<std::pair<DagNode **, DagNode*>> tempmap;
-    static DagNode * bind(Trapezoid&);
+    static DagNode * bind(Trapezoid*);
     friend class DagNodeArea;
 private:
     static DagNode * dag;

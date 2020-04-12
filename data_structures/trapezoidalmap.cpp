@@ -8,7 +8,7 @@ cg3::Point2d leftp = cg3::Point2d(-1000000.0, 1000000.0);
 cg3::Point2d rightp = cg3::Point2d(1000000.0, 1000000.0);
 Trapezoid t = Trapezoid(topbb, botbb, leftp, rightp,nullptr);
 Trapezoid TrapezoidalMap::boundingBox = t;
-DagNode * Dag::dag = bind(TrapezoidalMap::getBoundingBox());
+DagNode * Dag::dag = bind(&TrapezoidalMap::getBoundingBox());
 TrapezoidalMap::TrapezoidalMap(){
 
 }
@@ -32,7 +32,7 @@ void TrapezoidalMap::addTrapezoid(Trapezoid& t)
     trapezoids.push_back(t);
 }
 
-void TrapezoidalMap::removeTrapezoid(Trapezoid &tr) //O(1) Delete a list element
+void TrapezoidalMap::removeTrapezoid(const Trapezoid &tr) //O(1) Delete a list element
 {
     std::list<Trapezoid>::iterator before;
     std::list<Trapezoid>::iterator after;

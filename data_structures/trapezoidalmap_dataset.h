@@ -17,11 +17,11 @@
  * it does not have any intersections with the other segments.
  */
 
-struct TrapezoidHasher {
-    const Trapezoid * operator()(const Trapezoid& x) const {
-        return &x;
-    }
-};
+//struct TrapezoidHasher {
+//    const Trapezoid * operator()(const Trapezoid& x) const {
+//        return &x;
+//    }
+//};
 
 class TrapezoidalMapDataset {
 
