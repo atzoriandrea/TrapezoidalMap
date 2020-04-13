@@ -1,20 +1,26 @@
 #include "dag_dataset.h"
 #include "trapezoidalmap.h"
 
-std::list<Trapezoid> TrapezoidalMap::trapezoids = {};
+//std::list<Trapezoid> TrapezoidalMap::trapezoids = {};
 cg3::Segment2d topbb = cg3::Segment2d(cg3::Point2d(-1000000.0, 1000000.0),cg3::Point2d(1000000.0, 1000000.0));
 cg3::Segment2d botbb = cg3::Segment2d(cg3::Point2d(-1000000.0, -1000000.0),cg3::Point2d(1000000.0, -1000000.0));
 cg3::Point2d leftp = cg3::Point2d(-1000000.0, 1000000.0);
 cg3::Point2d rightp = cg3::Point2d(1000000.0, 1000000.0);
-Trapezoid t = Trapezoid(topbb, botbb, leftp, rightp,nullptr);
-Trapezoid TrapezoidalMap::boundingBox = t;
-DagNode * Dag::dag = bind(&TrapezoidalMap::getBoundingBox());
+Trapezoid TrapezoidalMap::boundingBox = Trapezoid(topbb, botbb, leftp, rightp,(DagNodeArea*)&Dag::getNodes());
+std::list<Trapezoid> TrapezoidalMap::trapezoids = {boundingBox};
+std::list<boost::any>Dag::nodes = {DagNodeArea(TrapezoidalMap::getTrapezoid())};
+DagNode& Dag::dag = (DagNodeArea&)Dag::getNodes().back();
 TrapezoidalMap::TrapezoidalMap(){
 
 }
 std::list<Trapezoid>& TrapezoidalMap::getTrapezoids()
 {
-    return  trapezoids;
+    return trapezoids;
+}
+
+Trapezoid &TrapezoidalMap::getTrapezoid()
+{
+    return *trapezoids.begin();
 }
 
 
@@ -22,7 +28,7 @@ void TrapezoidalMap::addTrapezoids(std::vector<Trapezoid> traps)
 {
     //std::copy( vec.begin(), vec.end(), std::inserter( trapezoids, trapezoids.end() ) );
     for (unsigned int i = 0; i<traps.size();i++) {
-        trapezoids.push_back(traps[i]);
+        TrapezoidalMap::addTrapezoid(traps[i]);
     }
 
 }
@@ -30,22 +36,27 @@ void TrapezoidalMap::addTrapezoids(std::vector<Trapezoid> traps)
 void TrapezoidalMap::addTrapezoid(Trapezoid& t)
 {
     trapezoids.push_back(t);
+    std::list<Trapezoid>::iterator itr = trapezoids.end();
+    itr --;
+    trapezoids.back().setItr(itr);
 }
 
-void TrapezoidalMap::removeTrapezoid(const Trapezoid &tr) //O(1) Delete a list element
+void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) Delete a list element
 {
+
     std::list<Trapezoid>::iterator before;
     std::list<Trapezoid>::iterator after;
-    std::list<Trapezoid>::iterator it = std::find(trapezoids.begin(), trapezoids.end(), tr);
-    if(it!=trapezoids.end()){
-        before = prev(it);
-        after = next(it);
-        before._M_node->_M_next=after._M_node;
-        after._M_node->_M_prev=before._M_node;
-        it._M_node->_M_unhook();
-        it._M_node->~_List_node_base();
-        trapezoids.erase(it);
-    }
+    before = prev(itr);
+    after = next(itr);
+    before._M_node->_M_next=after._M_node;
+    after._M_node->_M_prev=before._M_node;
+    itr._M_node->_M_unhook();
+    itr._M_node->~_List_node_base();
+    trapezoids.erase(itr);
+//    std::list<Trapezoid>::iterator it = std::find(trapezoids.begin(), trapezoids.end(), tr);
+//    if(it!=trapezoids.end()){
+//
+//    }
 
 }
 
@@ -152,44 +163,44 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
     
 }
 
-void TrapezoidalMap::merge(Trapezoid &tLeft, Trapezoid &tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
-{
-    DagNodeArea const * tLeftLeaf = tLeft.getNode();
-    tRight.setLeftp(tLeft.getLeftp());
-    tRight.setLeftUp(tLeft.getLeftUp());
-    tRight.setLeftDown(tLeft.getLeftDown());
-    tRight.setTop(cg3::Segment2d(tLeft.getTop().p1(), tRight.getTop().p2()));
-    tRight.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), tRight.getBottom().p2()));
-    if(tLeft.getLeftUp().getRightUp()==tLeft)
-        tLeft.getLeftUp().setRightUp(tRight);
+//void TrapezoidalMap::merge(Trapezoid &tLeft, Trapezoid &tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
+//{
+//    DagNodeArea const * tLeftLeaf = tLeft.getNode();
+//    tRight.setLeftp(tLeft.getLeftp());
+//    tRight.setLeftUp(tLeft.getLeftUp());
+//    tRight.setLeftDown(tLeft.getLeftDown());
+//    tRight.setTop(cg3::Segment2d(tLeft.getTop().p1(), tRight.getTop().p2()));
+//    tRight.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), tRight.getBottom().p2()));
+//    if(tLeft.getLeftUp().getRightUp()==tLeft)
+//        tLeft.getLeftUp().setRightUp(tRight);
 
-    if(tLeft.getLeftUp().getRightDown()==tLeft)
-        tLeft.getLeftUp().setRightDown(tRight);
+//    if(tLeft.getLeftUp().getRightDown()==tLeft)
+//        tLeft.getLeftUp().setRightDown(tRight);
 
-    if(tLeft.getLeftDown().getRightUp()==tLeft)
-        tLeft.getLeftDown().setRightUp(tRight);
+//    if(tLeft.getLeftDown().getRightUp()==tLeft)
+//        tLeft.getLeftDown().setRightUp(tRight);
 
-    if(tLeft.getLeftDown().getRightDown()==tLeft)
-        tLeft.getLeftDown().setRightDown(tRight);
+//    if(tLeft.getLeftDown().getRightDown()==tLeft)
+//        tLeft.getLeftDown().setRightDown(tRight);
 
-    tLeftLeaf->setTrap(tRight);
-    garbageCollector.push_back(tLeft.getItr());
-    //TrapezoidalMap::removeTrapezoid(tLeft);
-}
+//    tLeftLeaf->setTrap(tRight);
+//    garbageCollector.push_back(tLeft.getItr());
+//    //TrapezoidalMap::removeTrapezoid(tLeft);
+//}
 
 void TrapezoidalMap::deleteGarbage(std::vector<std::list<Trapezoid>::iterator> &garbage)
 {
-    std::list<Trapezoid>::iterator before;
-    std::list<Trapezoid>::iterator after;
-    for(std::list<Trapezoid>::iterator it: garbage) {
-        before = prev(it);
-        after = next(it);
-        before._M_node->_M_next=after._M_node;
-        after._M_node->_M_prev=before._M_node;
-        it._M_node->_M_unhook();
-        it._M_node->~_List_node_base();
-        trapezoids.erase(it);
-    }
+//    std::list<Trapezoid>::iterator before;
+//    std::list<Trapezoid>::iterator after;
+//    for(std::list<Trapezoid>::iterator it: garbage) {
+//        before = prev(it);
+//        after = next(it);
+//        before._M_node->_M_next=after._M_node;
+//        after._M_node->_M_prev=before._M_node;
+//        it._M_node->_M_unhook();
+//        it._M_node->~_List_node_base();
+//        trapezoids.erase(it);
+//    }
 
 
 }

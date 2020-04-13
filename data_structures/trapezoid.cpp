@@ -1,9 +1,9 @@
 #include "trapezoid.h"
 
-Trapezoid::Trapezoid()
-{
+//Trapezoid::Trapezoid()
+//{
 
-}
+//}
 
 Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n){
     this->top = top;
@@ -126,7 +126,7 @@ std::list<Trapezoid>::iterator Trapezoid::getItr() const
     return itr;
 }
 
-void Trapezoid::setItr(const std::list<Trapezoid>::iterator &value)
+void  Trapezoid::setItr(const std::list<Trapezoid>::iterator &  value )
 {
     itr = value;
 }

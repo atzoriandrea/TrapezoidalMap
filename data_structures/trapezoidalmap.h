@@ -9,9 +9,10 @@ public:
     TrapezoidalMap();
 
     static std::list<Trapezoid>& getTrapezoids();
+    static Trapezoid& getTrapezoid();
     static void addTrapezoids(std::vector<Trapezoid> vec);
     static void addTrapezoid(Trapezoid& t);
-    static void removeTrapezoid(const Trapezoid& t);
+    static void removeTrapezoid(std::list<Trapezoid>::iterator);
     //static void replaceTrapezoid(Trapezoid& old, Trapezoid& substitute);
     static Trapezoid &getBoundingBox();
     static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
