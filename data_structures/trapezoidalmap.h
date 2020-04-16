@@ -13,7 +13,7 @@ public:
     static void addTrapezoids(std::vector<Trapezoid> vec);
     static void addTrapezoid(Trapezoid& t);
     static void removeTrapezoid(std::list<Trapezoid>::iterator);
-    //static void replaceTrapezoid(Trapezoid& old, Trapezoid& substitute);
+    static std::list<Trapezoid>& init(Trapezoid& ref);
     static Trapezoid &getBoundingBox();
     static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
     static void updateNeighborsMultiTrapezoid(const Trapezoid& t, std::vector<Trapezoid*>& heirs, int type);

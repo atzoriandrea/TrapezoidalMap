@@ -30,7 +30,7 @@ public:
     inline bool operator==(const Trapezoid& other) const {return (this->getTop().p1()==other.getTop().p1() && this->getBottom().p2()==other.getBottom().p2())?true:false;}
     inline bool operator!=(const Trapezoid& other) const {return !(this->getTop().p1()==other.getTop().p1()&& this->getBottom().p2()==other.getBottom().p2())?true:false;}
     inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}
-    Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp,DagNodeArea* n);
+    Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp,DagNodeArea*& n);
     cg3::Segment2d getTop() const;
     void setTop(const cg3::Segment2d &value);
 
@@ -66,13 +66,13 @@ public:
     void setNode(DagNodeArea *value);
 
     std::list<Trapezoid>::iterator getItr() const;
-    void setItr(const std::list<Trapezoid>::iterator &value);
+    Trapezoid& setItr(const std::list<Trapezoid>::iterator &value);
 
 
 
 private:
     std::list<Trapezoid>::iterator itr;
-    DagNodeArea* node;
+    DagNodeArea*& node;
     cg3::Segment2d top;
     cg3::Segment2d bottom;
     cg3::Point2d leftp;

@@ -6,10 +6,9 @@ cg3::Segment2d topbb = cg3::Segment2d(cg3::Point2d(-1000000.0, 1000000.0),cg3::P
 cg3::Segment2d botbb = cg3::Segment2d(cg3::Point2d(-1000000.0, -1000000.0),cg3::Point2d(1000000.0, -1000000.0));
 cg3::Point2d leftp = cg3::Point2d(-1000000.0, 1000000.0);
 cg3::Point2d rightp = cg3::Point2d(1000000.0, 1000000.0);
-Trapezoid TrapezoidalMap::boundingBox = Trapezoid(topbb, botbb, leftp, rightp,(DagNodeArea*)&Dag::getNodes());
+Trapezoid TrapezoidalMap::boundingBox = Trapezoid(topbb, botbb, leftp, rightp,(DagNodeArea*&)Dag::dagRef());
 std::list<Trapezoid> TrapezoidalMap::trapezoids = {boundingBox};
-std::list<boost::any>Dag::nodes = {DagNodeArea(TrapezoidalMap::getTrapezoid())};
-DagNode& Dag::dag = (DagNodeArea&)Dag::getNodes().back();
+DagNode* Dag::dag = new DagNodeArea(TrapezoidalMap::getBoundingBox().setItr(TrapezoidalMap::getTrapezoids().begin()));
 TrapezoidalMap::TrapezoidalMap(){
 
 }
@@ -29,6 +28,7 @@ void TrapezoidalMap::addTrapezoids(std::vector<Trapezoid> traps)
     //std::copy( vec.begin(), vec.end(), std::inserter( trapezoids, trapezoids.end() ) );
     for (unsigned int i = 0; i<traps.size();i++) {
         TrapezoidalMap::addTrapezoid(traps[i]);
+        TrapezoidalMap::trapezoids.back().setItr(prev(TrapezoidalMap::trapezoids.end()));
     }
 
 }
@@ -36,13 +36,15 @@ void TrapezoidalMap::addTrapezoids(std::vector<Trapezoid> traps)
 void TrapezoidalMap::addTrapezoid(Trapezoid& t)
 {
     trapezoids.push_back(t);
-    std::list<Trapezoid>::iterator itr = trapezoids.end();
-    itr --;
-    trapezoids.back().setItr(itr);
+    trapezoids.back().setItr(prev(trapezoids.end()));
 }
 
 void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) Delete a list element
 {
+    if(TrapezoidalMap::getTrapezoids().begin() == itr){
+        trapezoids.erase(itr);
+        return;
+    }
 
     std::list<Trapezoid>::iterator before;
     std::list<Trapezoid>::iterator after;
@@ -53,17 +55,14 @@ void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) 
     itr._M_node->_M_unhook();
     itr._M_node->~_List_node_base();
     trapezoids.erase(itr);
-//    std::list<Trapezoid>::iterator it = std::find(trapezoids.begin(), trapezoids.end(), tr);
-//    if(it!=trapezoids.end()){
-//
-//    }
-
 }
 
-//void TrapezoidalMap::replaceTrapezoid(Trapezoid &old, Trapezoid& substitute)
-//{
-//    std::replace(trapezoids.begin(), trapezoids.end(), old, substitute);
-//}
+std::list<Trapezoid>& TrapezoidalMap::init(Trapezoid &ref)
+{
+    trapezoids.push_back(ref);
+    trapezoids.back().setItr(--trapezoids.end());
+    return trapezoids;
+}
 
 Trapezoid &TrapezoidalMap::getBoundingBox()
 {

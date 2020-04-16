@@ -5,12 +5,11 @@
 
 //}
 
-Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea* n){
+Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea*& n):node(n){
     this->top = top;
     this->bottom = bottom;
     this->leftp = leftp;
     this->rightp = rightp;
-    this->node = n;
     this->leftUp=nullptr;
     this->rightUp=nullptr;
     this->leftDown=nullptr;
@@ -126,9 +125,10 @@ std::list<Trapezoid>::iterator Trapezoid::getItr() const
     return itr;
 }
 
-void  Trapezoid::setItr(const std::list<Trapezoid>::iterator &  value )
+Trapezoid& Trapezoid::setItr(const std::list<Trapezoid>::iterator &  value )
 {
     itr = value;
+    return *this;
 }
 
 
