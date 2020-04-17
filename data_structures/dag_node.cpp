@@ -7,7 +7,23 @@ DagNode::NodeType DagNode::getType()
 }
 
 DagNodeArea::DagNodeArea(Trapezoid &t) :trap(t){ type = NodeType::Leaf; };
-
+DagNodeArea& DagNodeArea::operator =(DagNodeArea &other){
+        itr = other.itr;
+        trap = other.trap;
+}
+DagNodeArea::DagNodeArea(DagNodeArea &other):trap(other.trap)
+{
+    itr = other.getItr();
+    trap = other.getT();
+}
+void DagNodeArea::swap(DagNodeArea& other){
+    using std::swap;
+    swap(trap, other.trap);
+};
+DagNodeArea& DagNodeArea::operator=(DagNodeArea other){
+    swap(other);
+    return *this;
+}
 
 InnerNodes::InnerNodes(DagNode* lc, DagNode* rc): lcValue(lc), rcValue(rc), leftChild(lcValue), rightChild(rcValue){}
 InnerNodes::InnerNodes(DagNodeArea*& left, DagNode* rc): leftChild((DagNode*&)left), rightChild(rcValue) {

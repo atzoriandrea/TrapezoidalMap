@@ -41,20 +41,21 @@ void TrapezoidalMap::addTrapezoid(Trapezoid& t)
 
 void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) Delete a list element
 {
-    if(TrapezoidalMap::getTrapezoids().begin() == itr){
-        trapezoids.erase(itr);
+    std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
+    if(ref.begin() == itr){
+        ref.erase(itr);
         return;
     }
 
-    std::list<Trapezoid>::iterator before;
-    std::list<Trapezoid>::iterator after;
-    before = prev(itr);
-    after = next(itr);
-    before._M_node->_M_next=after._M_node;
-    after._M_node->_M_prev=before._M_node;
-    itr._M_node->_M_unhook();
-    itr._M_node->~_List_node_base();
-    trapezoids.erase(itr);
+//    std::list<Trapezoid>::iterator before;
+//    std::list<Trapezoid>::iterator after;
+//    before = prev(itr);
+//    after = next(itr);
+//    before._M_node->_M_next=after._M_node;
+//    after._M_node->_M_prev=before._M_node;
+//    itr._M_node->_M_unhook();
+//    itr._M_node->~_List_node_base();
+    ref.erase(itr);
 }
 
 std::list<Trapezoid>& TrapezoidalMap::init(Trapezoid &ref)
@@ -162,44 +163,48 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
     
 }
 
-//void TrapezoidalMap::merge(Trapezoid &tLeft, Trapezoid &tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
-//{
-//    DagNodeArea const * tLeftLeaf = tLeft.getNode();
-//    tRight.setLeftp(tLeft.getLeftp());
-//    tRight.setLeftUp(tLeft.getLeftUp());
-//    tRight.setLeftDown(tLeft.getLeftDown());
-//    tRight.setTop(cg3::Segment2d(tLeft.getTop().p1(), tRight.getTop().p2()));
-//    tRight.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), tRight.getBottom().p2()));
-//    if(tLeft.getLeftUp().getRightUp()==tLeft)
-//        tLeft.getLeftUp().setRightUp(tRight);
+DagNodeArea*& TrapezoidalMap::merge(Trapezoid &tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>& tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
+{
+    DagNodeArea *&  tLeftLeaf = tLeft.getNodeRef();
+    tLeft.setRightp(std::get<3>(tRight));
+    //tLeft.setRightUp(tRight.getRightUp());
+    //tLeft.setRightDown(tRight.getRightDown());
+    tLeft.setTop(cg3::Segment2d(tLeft.getTop().p1(), std::get<0>(tRight).p2()));
+    tLeft.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), std::get<1>(tRight).p2()));
+//    if(tRight.getRightUp().getLeftUp()==tRight)
+//        tRight.getRightUp().setRightUp(tLeft);
 
-//    if(tLeft.getLeftUp().getRightDown()==tLeft)
-//        tLeft.getLeftUp().setRightDown(tRight);
+//    if(tRight.getRightUp().getLeftDown()==tRight)
+//        tRight.getRightUp().setLeftDown(tLeft);
 
-//    if(tLeft.getLeftDown().getRightUp()==tLeft)
-//        tLeft.getLeftDown().setRightUp(tRight);
+//    if(tRight.getRightDown().getLeftUp()==tRight)
+//        tRight.getRightDown().setLeftUp(tLeft);
 
-//    if(tLeft.getLeftDown().getRightDown()==tLeft)
-//        tLeft.getLeftDown().setRightDown(tRight);
+//    if(tRight.getRightDown().getLeftDown()==tRight)
+//        tRight.getRightDown().setLeftDown(tLeft);
 
-//    tLeftLeaf->setTrap(tRight);
-//    garbageCollector.push_back(tLeft.getItr());
-//    //TrapezoidalMap::removeTrapezoid(tLeft);
-//}
+    //tLeftLeaf->setTrap(tRight);
+    //garbageCollector.push_back(tLeft.getItr());
+    //TrapezoidalMap::removeTrapezoid(tLeft);
+    return tLeftLeaf;
+}
 
 void TrapezoidalMap::deleteGarbage(std::vector<std::list<Trapezoid>::iterator> &garbage)
 {
-//    std::list<Trapezoid>::iterator before;
-//    std::list<Trapezoid>::iterator after;
-//    for(std::list<Trapezoid>::iterator it: garbage) {
+    std::list<Trapezoid>::iterator before;
+    std::list<Trapezoid>::iterator after;
+    for(std::list<Trapezoid>::iterator it: garbage) {
 //        before = prev(it);
 //        after = next(it);
 //        before._M_node->_M_next=after._M_node;
 //        after._M_node->_M_prev=before._M_node;
 //        it._M_node->_M_unhook();
 //        it._M_node->~_List_node_base();
-//        trapezoids.erase(it);
-//    }
+        if(it==(trapezoids.end()))
+            trapezoids.pop_back();
+        else
+            trapezoids.erase(it);
+    }
 
 
 }

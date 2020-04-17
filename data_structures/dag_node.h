@@ -18,12 +18,11 @@ public:
 
 class DagNodeArea:public DagNode{
 public:
-    DagNodeArea& operator=(const DagNodeArea& other){
-        *this = other;
-        return *this;
-    }
+    DagNodeArea& operator=(DagNodeArea other);
+    DagNodeArea& operator = (DagNodeArea & other);
+    DagNodeArea(DagNodeArea& other);
     DagNodeArea(Trapezoid& t);
-
+    void swap(DagNodeArea& other);
     Trapezoid& getT() const;
     void setTrap(Trapezoid &value) const;
 
