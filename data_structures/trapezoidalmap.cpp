@@ -155,7 +155,12 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
         }
     }
     if(type==intermediate){
+        if(t.getTop().p1() == heirs[0]->getTop().p1()){ //la parte unita è quella sotto il segmento, questa è quella "intatta"
 
+        }
+        else{
+
+        }
     }
     if(type==rightmost){
 
@@ -166,26 +171,10 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
 DagNodeArea*& TrapezoidalMap::merge(Trapezoid &tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>& tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
 {
     DagNodeArea *&  tLeftLeaf = tLeft.getNodeRef();
-    tLeft.setRightp(std::get<3>(tRight));
-    //tLeft.setRightUp(tRight.getRightUp());
-    //tLeft.setRightDown(tRight.getRightDown());
+    cg3::Point2d rightp = std::get<3>(tRight);
+    tLeft.setRightp(rightp);
     tLeft.setTop(cg3::Segment2d(tLeft.getTop().p1(), std::get<0>(tRight).p2()));
     tLeft.setBottom(cg3::Segment2d(tLeft.getBottom().p1(), std::get<1>(tRight).p2()));
-//    if(tRight.getRightUp().getLeftUp()==tRight)
-//        tRight.getRightUp().setRightUp(tLeft);
-
-//    if(tRight.getRightUp().getLeftDown()==tRight)
-//        tRight.getRightUp().setLeftDown(tLeft);
-
-//    if(tRight.getRightDown().getLeftUp()==tRight)
-//        tRight.getRightDown().setLeftUp(tLeft);
-
-//    if(tRight.getRightDown().getLeftDown()==tRight)
-//        tRight.getRightDown().setLeftDown(tLeft);
-
-    //tLeftLeaf->setTrap(tRight);
-    //garbageCollector.push_back(tLeft.getItr());
-    //TrapezoidalMap::removeTrapezoid(tLeft);
     return tLeftLeaf;
 }
 
