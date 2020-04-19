@@ -108,7 +108,7 @@ void TrapezoidalMap::updateNeighbors(const Trapezoid &t, std::vector<Trapezoid*>
     }
 }
 
-void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vector<Trapezoid *> &heirs, int type)
+void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vector<Trapezoid *> &heirs, int type, DagNodeSegment& prevSeg)
 {
     enum insertionType {leftmost = 0, intermediate = 1, rightmost = 2};
     Trapezoid* leftUp = &t.getLeftUp();
@@ -130,45 +130,94 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
                 leftDown->setRightDown(*heirs[0]);
             }
         }
-        if(rightUp !=nullptr && rightDown !=nullptr){
-            if (rightUp==rightDown){
-                if(t.getTop().p2()==rightUp->getLeftp()){
-                    rightUp->setLeftDown(*heirs[1]);
-
-                }else
-                    rightUp->setLeftUp(*heirs[2]);
-            }
-            else{
-                if(heirs[1]->getBottom().p2().y()>rightUp->getBottom().p1().y()){
-                    rightUp->setLeftUp(*heirs[1]);
-                    rightUp->setLeftDown(*heirs[2]);
-                    rightDown->setLeftUp(*heirs[2]);
-                    rightDown->setLeftDown(*heirs[2]);
-                }
-                else{
-                    rightUp->setLeftUp(*heirs[1]);
-                    rightUp->setLeftDown(*heirs[1]);
-                    rightDown->setLeftUp(*heirs[1]);
-                    rightDown->setLeftDown(*heirs[2]);
-                }
-            }
-        }
-    }
-    if(type==intermediate){
-        if(t.getTop().p1() == heirs[0]->getTop().p1()){ //la parte unita è quella sotto il segmento, questa è quella "intatta"
-
+        if(t.getRightp().y()>heirs[1]->getBottom().p2().y()){
+            rightUp->setLeftUp(*heirs[1]);
+            rightUp->setLeftDown(*heirs[1]);
+            heirs[1]->setRightUp(*rightUp);
         }
         else{
+            rightDown->setLeftUp(*heirs[1]);
+            rightDown->setLeftDown(*heirs[1]);
+            heirs[1]->setRightDown(*rightDown);
+        }
+//        if(rightUp !=nullptr && rightDown !=nullptr){
+//            if (rightUp==rightDown){
+//                if(t.getTop().p2()==rightUp->getLeftp()){
+//                    rightUp->setLeftDown(*heirs[1]);
 
+//                }else
+//                    rightUp->setLeftUp(*heirs[2]);
+//            }
+//            else{
+//                if(heirs[1]->getBottom().p2().y()>rightUp->getBottom().p1().y()){
+//                    rightUp->setLeftUp(*heirs[1]);
+//                    rightUp->setLeftDown(*heirs[2]);
+//                    rightDown->setLeftUp(*heirs[2]);
+//                    rightDown->setLeftDown(*heirs[2]);
+//                }
+//                else{
+//                    rightUp->setLeftUp(*heirs[1]);
+//                    rightUp->setLeftDown(*heirs[1]);
+//                    rightDown->setLeftUp(*heirs[1]);
+//                    rightDown->setLeftDown(*heirs[2]);
+//                }
+//            }
+//        }
+    }
+    if(type==intermediate){
+        if(t.getTop().p1() == heirs[0]->getTop().p1()) { //la parte unita è quella sotto il segmento, questa è quella "intatta"
+            ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightDown(*heirs[0]);
+            if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()){
+                ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightUp(*heirs[0]);
+                heirs[0]->setLeftUp(*leftUp);
+                leftUp->setRightUp(*heirs[0]);
+                leftUp->setRightDown(*heirs[0]);
+                heirs[0]->setRightUp(*rightUp);
+                if(rightUp!=nullptr){
+                    rightUp->setLeftUp(*heirs[0]);
+                    rightUp->setLeftDown(*heirs[0]);
+                }
+            }
+            else{
+                heirs[0]->setLeftUp(((DagNodeArea*)prevSeg.getLeftChild())->getT());
+                heirs[0]->setRightUp(*rightUp);
+                heirs[0]->setRightDown(*rightDown);
+            }
+            heirs[0]->setLeftDown(((DagNodeArea*)prevSeg.getLeftChild())->getT());
+
+        }else{
+            ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightUp(*heirs[1]);
+            if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()){
+                ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightDown(*heirs[1]);
+                heirs[1]->setLeftDown(*leftDown);
+                leftDown->setRightUp(*heirs[1]);
+                leftDown->setRightDown(*heirs[1]);
+                heirs[1]->setRightDown(*rightDown);
+                if(rightDown!=nullptr){
+                    rightDown->setLeftUp(*heirs[1]);
+                    rightDown->setLeftDown(*heirs[1]);
+                }
+            }
+            else{
+                heirs[1]->setLeftUp(((DagNodeArea*)prevSeg.getRightChild())->getT());
+                heirs[1]->setRightUp(*rightUp);
+                heirs[1]->setRightDown(*rightDown);
+            }
+            heirs[1]->setLeftDown(((DagNodeArea*)prevSeg.getRightChild())->getT());
         }
     }
-    if(type==rightmost){
 
+    if(type==rightmost){
+        updateNeighborsMultiTrapezoid(t, heirs, 1, prevSeg);
+        if(rightUp !=nullptr && rightDown !=nullptr){
+            rightUp->setLeftUp(*heirs[2]);
+            rightDown->setLeftDown(*heirs[2]);
+        }
     }
     
 }
 
-DagNodeArea*& TrapezoidalMap::merge(Trapezoid &tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>& tRight, std::vector<std::list<Trapezoid>::iterator>& garbageCollector)
+DagNodeArea*& TrapezoidalMap::merge(Trapezoid &tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>& tRight)
 {
     DagNodeArea *&  tLeftLeaf = tLeft.getNodeRef();
     cg3::Point2d rightp = std::get<3>(tRight);
