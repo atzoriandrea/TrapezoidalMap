@@ -27,7 +27,8 @@ public:
 //        *this = other;
 //        return *this;
 //    }
-    inline bool operator==(const Trapezoid& other) const {return (this->getTop().p1()==other.getTop().p1() && this->getBottom().p2()==other.getBottom().p2())?true:false;}
+//    inline bool operator==(const Trapezoid& other) const {return (this->getTop().p1()==other.getTop().p1() && this->getBottom().p2()==other.getBottom().p2())?true:false;}
+    inline bool operator==(const Trapezoid& other) const {return (this==&other)?true:false;}
     inline bool operator!=(const Trapezoid& other) const {return !(this->getTop().p1()==other.getTop().p1()&& this->getBottom().p2()==other.getBottom().p2())?true:false;}
     inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}
     Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp,DagNodeArea*& n);

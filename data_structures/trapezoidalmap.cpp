@@ -131,14 +131,14 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
             }
         }
         if(t.getRightp().y()>heirs[1]->getBottom().p2().y()){
-            rightUp->setLeftUp(*heirs[1]);
+            //rightUp->setLeftUp(*heirs[1]);
             rightUp->setLeftDown(*heirs[1]);
             heirs[1]->setRightUp(*rightUp);
         }
         else{
-            rightDown->setLeftUp(*heirs[1]);
-            rightDown->setLeftDown(*heirs[1]);
-            heirs[1]->setRightDown(*rightDown);
+            //rightDown->setLeftUp(*heirs[1]);
+            rightDown->setLeftUp(*heirs[2]);
+            heirs[2]->setRightDown(*rightDown);
         }
 //        if(rightUp !=nullptr && rightDown !=nullptr){
 //            if (rightUp==rightDown){
@@ -187,7 +187,8 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
 
         }else{
             ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightUp(*heirs[1]);
-            if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()){
+            if(
+                    ((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()){
                 ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightDown(*heirs[1]);
                 heirs[1]->setLeftDown(*leftDown);
                 leftDown->setRightUp(*heirs[1]);

@@ -7,10 +7,10 @@ Dag::Dag(){
 void Dag::addSegment(cg3::Segment2d& segment){ //O (k log k)
     if(Dag::dag->getType()!=DagNode::Leaf){
         DagNode*& ins = searchAndAppend(segment.p1());
-        if(segment.p2().x()<((DagNodeArea*)ins)->getT().getRightp().x())
-            ins = addSegmentInSingleTrap(ins, segment);
-        else
+        if(segment.p2().x()>((DagNodeArea*)ins)->getT().getRightp().x())
             followSegment(segment, (DagNodeArea*)ins);
+        else
+            ins = addSegmentInSingleTrap(ins, segment);
     }
     else{
         Dag::dag = addSegmentInSingleTrap(Dag::dag, segment);
@@ -217,7 +217,7 @@ DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
     si->setLeftChild(leafB);
     si->setRightChild(leafC);
 
-//    std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
+//    std::vector<Trapezoid> traps = {Trapezoid(ctrap.getRightp()g3::Segment2d(trap.getTop().p1(),ints[0]),
 //                                    cg3::Segment2d(trap.getBottom().p1(),ints[1]),
 //                                    trap.getLeftp() , segment.p1(), nullptr),
 //                                    Trapezoid(cg3::Segment2d(ints[0],trap.getTop().p2()),
@@ -258,7 +258,7 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
 
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
         std::make_tuple(cg3::Segment2d(trap.getTop().p1(),ints[0]),cg3::Segment2d(ints[2], segment.p2()),(trap.getLeftp().y()<ints[2].y())?ints[2]:trap.getLeftp() , segment.p2()),
-        std::make_tuple(cg3::Segment2d(ints[2],segment.p2()),cg3::Segment2d(trap.getBottom().p1(), ints[1]),(trap.getLeftp().y()>ints[2].y())?ints[2]:trap.getLeftp(), trap.getRightp()),
+        std::make_tuple(cg3::Segment2d(ints[2],segment.p2()),cg3::Segment2d(trap.getBottom().p1(), ints[1]),(trap.getLeftp().y()>ints[2].y())?ints[2]:trap.getLeftp(), segment.p2()),
         std::make_tuple(cg3::Segment2d(ints[0],trap.getTop().p2()),cg3::Segment2d(ints[1], trap.getBottom().p2()),segment.p2(), trap.getRightp()),
     };
 //    std::vector<Trapezoid> traps = {Trapezoid(cg3::Segment2d(trap.getTop().p1(),ints[0]),
@@ -277,6 +277,7 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
 
     itr = ref.end();
     iterators[2] = &*(--itr);
+    itr = ref.end();
     if(ints[2].y()>trap.getLeftp().y()){
 
         si= new DagNodeSegment((TrapezoidalMap::merge(((DagNodeArea*)prevSeg.getLeftChild())->getT(), traps[0])),nullptr, segment);
