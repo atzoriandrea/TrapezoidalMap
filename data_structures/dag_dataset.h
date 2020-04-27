@@ -16,9 +16,11 @@ public:
     static DagNodePoint* rightDegenerateSingleInsertion(DagNode* node, cg3::Segment2d& segment);
     static DagNodeSegment* totallyDegenerateSingleInsertion(DagNode* node, cg3::Segment2d& segment);
     static void addSegment(cg3::Segment2d& segment);
-    static DagNode* createLeftMost(cg3::Segment2d& segment, DagNodeArea& leaf);
-    static DagNode* createRightMost(cg3::Segment2d& segment, DagNodeArea& leaf, DagNodeSegment& prevSeg);
-    static DagNode* createIntermediate(cg3::Segment2d& segment, DagNodeArea& leaf, DagNodeSegment& prevSeg);
+    static DagNode* createLeftMost(cg3::Segment2d& segment, DagNodeArea& leaf, Trapezoid*& lastDeleted);
+    static DagNode *createLeftMostDegenerate(cg3::Segment2d& segment, DagNodeArea& leaf, Trapezoid*& lastDeleted);
+    static DagNode* createRightMost(cg3::Segment2d& segment, DagNodeArea& leaf, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+    static DagNode *createRightMostDegenerate(cg3::Segment2d& segment, DagNodeArea& leaf, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+    static DagNode* createIntermediate(cg3::Segment2d& segment, DagNodeArea& leaf, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
     static void addMultiTrapezoidalSegment(cg3::Segment2d& segment);
     static DagNode* searchPoint(const cg3::Point2d& point);
     static DagNode*& searchAndAppend(const cg3::Segment2d& point);

@@ -122,24 +122,27 @@ DagNodePoint *Dag::leftDegenerateSingleInsertion(DagNode *node, cg3::Segment2d &
 
     iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),*iterators[2], *iterators[2]); //A
     iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),*iterators[2], *iterators[2]); //B
-    iterators[2]->setNeighbors(*iterators[0], *iterators[0],trap.getRightDown(), trap.getRightDown());
+    iterators[2]->setNeighbors(*iterators[0], *iterators[1],trap.getRightUp(), trap.getRightDown());
 
-    if(trap.getRightUp().getLeftUp()==trap)
+    if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap)
         trap.getRightUp().setLeftUp(*iterators[2]);
-    if(trap.getRightUp().getLeftDown()==trap)
+    if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap)
         trap.getRightUp().setLeftDown(*iterators[2]);
-    if(trap.getRightDown().getLeftUp()==trap)
+    if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap)
         trap.getRightDown().setLeftUp(*iterators[2]);
-    if(trap.getRightDown().getLeftDown()==trap)
+    if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap)
         trap.getRightDown().setLeftDown(*iterators[2]);
 
-    if(trap.getLeftUp().getRightUp()==trap)
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
         trap.getLeftUp().setRightUp(*iterators[0]);
-    trap.getLeftUp().setRightDown(*iterators[0]);
+    if(!trap.leftUpNull())
+        trap.getLeftUp().setRightDown(*iterators[0]);
 
-    if(trap.getLeftDown().getRightDown()==trap)
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap)
         trap.getLeftDown().setRightDown(*iterators[1]);
-    trap.getRightDown().setLeftUp(*iterators[1]);
+    if(!trap.leftDownNull())
+        trap.getLeftDown().setRightUp(*iterators[1]);
+    TrapezoidalMap::removeTrapezoid(trap.getItr());
 
     return qi;
 }
@@ -178,21 +181,24 @@ DagNodePoint *Dag::rightDegenerateSingleInsertion(DagNode *node, cg3::Segment2d 
     iterators[1]->setNeighbors(*iterators[0], *iterators[0],trap.getRightUp(), trap.getRightUp()); //B
     iterators[2]->setNeighbors(*iterators[0], *iterators[0],trap.getRightDown(), trap.getRightDown());
 
-    if(trap.getLeftUp().getRightUp()==trap)
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
         trap.getLeftUp().setRightUp(*iterators[0]);
-    if(trap.getLeftUp().getRightDown()==trap)
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightDown()==trap)
         trap.getLeftUp().setRightDown(*iterators[0]);
-    if(trap.getLeftDown().getRightUp()==trap)
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightUp()==trap)
         trap.getLeftDown().setRightUp(*iterators[0]);
-    if(trap.getLeftDown().getRightDown()==trap)
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap)
         trap.getLeftDown().setRightDown(*iterators[0]);
 
-    if(trap.getRightUp().getLeftUp()==trap)
+    if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap)
         trap.getRightUp().setLeftUp(*iterators[1]);
-    trap.getRightUp().setLeftDown(*iterators[1]);
-    trap.getRightDown().setLeftUp(*iterators[2]);
-    if(trap.getRightDown().getLeftDown()==trap)
+    if(!trap.rightUpNull())
+        trap.getRightUp().setLeftDown(*iterators[1]);
+    if(!trap.rightDownNull())
+        trap.getRightDown().setLeftUp(*iterators[2]);
+    if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap)
         trap.getRightDown().setLeftDown(*iterators[2]);
+    TrapezoidalMap::removeTrapezoid(trap.getItr());
 
     return pi;
 }
@@ -217,16 +223,20 @@ DagNodeSegment *Dag::totallyDegenerateSingleInsertion(DagNode *node, cg3::Segmen
     iterators[1] = &*(--itr);
     iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
     iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
-    if(trap.getLeftUp().getRightUp()==trap)
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
         trap.getLeftUp().setRightUp(*iterators[0]);
-    trap.getLeftUp().setRightDown(*iterators[0]);
+    if(!trap.leftUpNull())
+        trap.getLeftUp().setRightDown(*iterators[0]);
     if(trap.getRightUp().getLeftUp()==trap)
         trap.getRightUp().setLeftUp(*iterators[0]);
-    trap.getRightUp().setLeftDown(*iterators[0]);
-    trap.getLeftDown().setRightUp(*iterators[1]);
+    if(!trap.rightUpNull())
+        trap.getRightUp().setLeftDown(*iterators[0]);
+    if(!trap.leftDownNull())
+        trap.getLeftDown().setRightUp(*iterators[1]);
     if(trap.getLeftDown().getRightDown()==trap)
         trap.getLeftDown().setRightDown(*iterators[1]);
-    trap.getRightDown().setLeftUp(*iterators[1]);
+    if(!trap.rightDownNull())
+        trap.getRightDown().setLeftUp(*iterators[1]);
     if(trap.getRightDown().getLeftDown()==trap)
         trap.getRightDown().setLeftDown(*iterators[1]);
     TrapezoidalMap::removeTrapezoid(trap.getItr());
@@ -302,7 +312,7 @@ void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea *leaf){
     //std::list<DagNodeArea *> leaves;
 
     std::vector<std::list<Trapezoid>::iterator> garbage;
-
+    Trapezoid * lastDeleted;
     DagNodeArea * current;
     //copy = createLeftMost(segment, *(DagNodeArea*)copy, garbage);
     DagNode* prevSeg;
@@ -322,11 +332,17 @@ void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea *leaf){
         DagNode *& copy = (DagNode*&)current->getT().getNodeRef();
         //if(segment.p2().x() > current->getT().getRightp().x()){
         if(iter == 0){
-            copy = createLeftMost(segment, *(DagNodeArea*)copy);
-            prevSeg = ((DagNodePoint*)copy)->getRightChild();
+            if(segment.p1()==(*(DagNodeArea*)copy).getT().getLeftp()){
+                copy = createLeftMostDegenerate(segment, *(DagNodeArea*)copy, lastDeleted);
+                prevSeg = copy;
+            }
+            else{
+                copy = createLeftMost(segment, *(DagNodeArea*)copy, lastDeleted);
+                prevSeg = ((DagNodePoint*)copy)->getRightChild();
+            }
         }
         else{
-            copy = createIntermediate(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg);
+            copy = createIntermediate(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
             prevSeg = copy;
         }
 //        }else{
@@ -335,24 +351,15 @@ void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea *leaf){
         iter ++;
     }
     DagNode*& copy = (DagNode*&)leaf->getT().getNodeRef();
-    copy = createRightMost(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg);
-    //garbage.push_back(leaf->getT().getItr());
-//    for(DagNodeArea* lf : leaves){
-//        //DagNodeArea *& l = lf;
-//        DagNode *& ref = (DagNode*&)lf->getT().getNodeRef();
-//        if(iter==0)
-//            ref = createLeftMost(segment, *lf, garbage);
-//        //else if(iter<leaves.size()-1)
-//        //    ref = createIntermediate(segment, *lf, garbage);
-//        else
-//            ref = createRightMost(segment, *lf, garbage);
-
-//        iter++;
+//    if(segment.p2()==(*(DagNodeArea*)copy).getT().getRightp()){
+//        printf("eccolo!");
+//        copy = createRightMostDegenerate(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
 //    }
-    //TrapezoidalMap::deleteGarbage(garbage);
+//    else
+        copy = createRightMost(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
 }
 
-DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
+DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf, Trapezoid*& lastDeleted){
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
     std::vector<Trapezoid*> iterators(3);
@@ -361,7 +368,8 @@ DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
     DagNode * leafC;
     DagNodePoint* pi;// = new DagNodePoint(nullptr, nullptr, segment.p1());
     InnerNodes* si;// = new DagNodeSegment(segment);
-    const Trapezoid& trap = leaf.getT();
+    Trapezoid& trap = leaf.getT();
+
     std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
                                       intersection(trap.getBottom(), segment.p1()),
                                       intersection(segment, trap.getTop().p2())};
@@ -398,12 +406,115 @@ DagNode* Dag::createLeftMost(cg3::Segment2d &segment, DagNodeArea &leaf){
     for(int i=2; i>-1; i--)
         iterators[i] = &*(--itr);
     //TODO
-    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 0, *(DagNodeSegment*)si);
+    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 0, *(DagNodeSegment*)si, lastDeleted);
+    lastDeleted = &trap;
     TrapezoidalMap::removeTrapezoid(trap.getItr());
     return pi;
 }
 
-DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNodeSegment& prevSeg)
+DagNode *Dag::createLeftMostDegenerate(cg3::Segment2d &segment, DagNodeArea &leaf, Trapezoid *&lastDeleted)
+{
+    bool aboveleftp;
+    bool aboverightp;
+    bool degenerate;
+    std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
+    std::list<Trapezoid>::iterator itr;
+    std::vector<Trapezoid*> iterators(2);
+    //DagNode * leafA;
+    DagNode * leafB;
+    DagNode * leafC;
+    //DagNodePoint* pi;// = new DagNodePoint(nullptr, nullptr, segment.p1());
+    InnerNodes* si;// = new DagNodeSegment(segment);
+    Trapezoid& trap = leaf.getT();
+    Trapezoid* leftUp = &trap.getLeftUp();
+    Trapezoid* leftDown = &trap.getLeftDown();
+    Trapezoid* rightUp = &trap.getRightUp();
+    Trapezoid* rightDown = &trap.getRightDown();
+    std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),
+                                      intersection(trap.getBottom(), segment.p1()),
+                                      intersection(segment, trap.getTop().p2())};
+    std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
+        std::make_tuple(trap.getTop(),cg3::Segment2d(segment.p1(),ints[2]), segment.p1() , ints[2]),
+        std::make_tuple(cg3::Segment2d(segment.p1(),ints[2]),trap.getBottom(),segment.p1(), ints[2]),
+
+    };
+
+    //pi = new DagNodePoint(nullptr, nullptr, segment.p1());
+    //leafA = bindWithParentRef(std::get<0>(traps[0]), std::get<1>(traps[0]), std::get<2>(traps[0]), std::get<3>(traps[0]), pi->getLeftChild());
+    //pi->setLeftChild(leafA);
+
+    si = new DagNodeSegment(nullptr, nullptr, segment);
+    leafB = bindWithParentRef(std::get<0>(traps[0]), std::get<1>(traps[0]), std::get<2>(traps[0]), std::get<3>(traps[0]), si->getLeftChild());
+    leafC = bindWithParentRef(std::get<0>(traps[1]), std::get<1>(traps[1]), std::get<2>(traps[1]), std::get<3>(traps[1]), si->getRightChild());
+    //pi->setRightChild(si);
+    si->setLeftChild(leafB);
+    si->setRightChild(leafC);
+
+//    std::vector<Trapezoid> traps = {Trapezoid(ctrap.getRightp()g3::Segment2d(trap.getTop().p1(),ints[0]),
+//                                    cg3::Segment2d(trap.getBottom().p1(),ints[1]),
+//                                    trap.getLeftp() , segment.p1(), nullptr),
+//                                    Trapezoid(cg3::Segment2d(ints[0],trap.getTop().p2()),
+//                                    cg3::Segment2d(segment.p1(), intersection(segment,trap.getBottom().p2())),
+//                                    segment.p1(), ints[2], nullptr),
+//                                    Trapezoid(cg3::Segment2d(segment.p1(),ints[2]),
+//                                    cg3::Segment2d(ints[1], trap.getBottom().p2()),
+//                                    sTrapezoidalMap::removeTrapezoid(trap.getItr());egment.p1(), ints[2],nullptr)};
+    //TrapezoidalMap::addTrapezoids(traps);
+
+    itr = ref.end();
+    for(int i=1; i>-1; i--)
+        iterators[i] = &*(--itr);
+
+
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
+        trap.getLeftUp().setRightUp(*iterators[0]);
+    if(!trap.leftUpNull())
+        trap.getLeftUp().setRightDown(*iterators[0]);
+
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap)
+        trap.getLeftDown().setRightDown(*iterators[1]);
+    if(!trap.leftDownNull())
+        trap.getLeftDown().setRightUp(*iterators[1]);
+
+
+    //from new to old neighbors
+    (iterators[1]->getBottom().p2().y()>trap.getRightp().y())?aboverightp=true:aboverightp=false; //check if the segment will pass under or above the current rightp
+    (iterators[0]->getTop().p1().y()>=trap.getLeftp().y())?aboveleftp=true:aboveleftp=false; // check where the new trapezoids are inserted with respect to previous trapezoid's segment
+    (iterators[0]->getRightp()==trap.getLeftp())?degenerate=true:degenerate=false; //check if the new segment has as a leftpoint a point of a previous segment
+    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), (aboverightp)?trap.getRightUp():trap.getRightDown());// be careful on right side neighbors
+    iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), (aboverightp)?trap.getRightUp():trap.getRightDown(), trap.getRightDown());//also there
+    //from old to new
+
+
+
+    if(aboverightp){
+        if(rightDown->getLeftUp()==trap)
+            rightDown->setLeftUp(*iterators[1]);
+        if(rightDown->getLeftDown()==trap)
+            rightDown->setLeftDown(*iterators[1]);
+        if(rightUp->getLeftUp()==trap)
+            rightUp->setLeftUp(*iterators[0]);
+        if(rightUp->getLeftDown()==trap)
+            rightUp->setLeftDown(*iterators[1]);
+    }
+    else{
+        if(rightDown->getLeftUp()==trap)
+            rightDown->setLeftUp(*iterators[0]);
+        if(rightDown->getLeftDown()==trap)
+            rightDown->setLeftDown(*iterators[1]);
+        if(rightUp->getLeftUp()==trap)
+            rightUp->setLeftUp(*iterators[0]);
+        if(rightUp->getLeftDown()==trap)
+            rightUp->setLeftDown(*iterators[0]);
+    }
+    //TODO
+    //TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 0, *(DagNodeSegment*)si, lastDeleted);
+    lastDeleted = &trap;
+    TrapezoidalMap::removeTrapezoid(trap.getItr());
+    return si;
+}
+
+DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNodeSegment& prevSeg, Trapezoid*& lastDeleted)
 {
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
@@ -414,7 +525,8 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
     std::vector<Trapezoid*> iterators(3);
     DagNodePoint* qi;// = new DagNodePoint(segment.p2());
     InnerNodes* si;// = new DagNodeSegment(segment);
-    const Trapezoid& trap = leaf.getT();
+    Trapezoid& trap = leaf.getT();
+
     std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p2()),
                                       intersection(trap.getBottom(), segment.p2()),
                                       intersection(segment, trap.getTop().p1())};
@@ -472,7 +584,8 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
 //    iterators[0]->setItr(itr);
     //TODO
     //garbageCollector.push_back(trap.getItr());
-    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 2, prevSeg);
+
+
     if(upper){
         iterators[0]->setNeighbors(iterators[0]->getLeftUp(),iterators[0]->getLeftDown(),*iterators[2], *iterators[2]);//
         iterators[1]->setNeighbors(((DagNodeArea*)prevSeg.getRightChild())->getT(),trap.getLeftDown(),*iterators[2], *iterators[2]);
@@ -482,7 +595,8 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
         iterators[1]->setNeighbors(iterators[1]->getLeftUp(),iterators[1]->getLeftDown(),*iterators[2], *iterators[2]);
     }
     iterators[2]->setNeighbors(*iterators[0],*iterators[1], trap.getRightUp(), trap.getRightDown());//
-
+    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 2, prevSeg, lastDeleted);
+    lastDeleted = &trap;
 //    qi->setRightChild(bind(iterators[2]));
 //    qi->setLeftChild(si);
 //    si->setLeftChild(bind(iterators[0]));
@@ -500,7 +614,63 @@ DagNode *Dag::createRightMost(cg3::Segment2d &segment, DagNodeArea &leaf,  DagNo
     return qi;
 }
 
-DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, DagNodeSegment& prevSeg)
+DagNode *Dag::createRightMostDegenerate(cg3::Segment2d &segment, DagNodeArea &leaf, DagNodeSegment& prevSeg, Trapezoid *&lastDeleted)
+{
+    std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
+    std::list<Trapezoid>::iterator itr;
+    std::vector<Trapezoid*> iterators(3);
+    DagNode * leafA;
+    DagNode * leafB;
+    DagNode * leafC;
+    const Trapezoid& trap = {leaf.getT()};
+    std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),intersection(trap.getBottom(), segment.p1())};
+
+    std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
+        std::make_tuple(cg3::Segment2d(trap.getTop().p1(),ints[0]), cg3::Segment2d(trap.getBottom().p1(), ints[1]), trap.getLeftp(), segment.p1()),
+        std::make_tuple(cg3::Segment2d(ints[0],trap.getTop().p2()),cg3::Segment2d(segment.p1(),segment.p2()),segment.p1(), segment.p2()),
+        std::make_tuple(cg3::Segment2d(segment.p1(),segment.p2()), cg3::Segment2d(ints[1],trap.getBottom().p2()), segment.p1(), segment.p2())
+    };
+    DagNodePoint * pi = new DagNodePoint(nullptr, nullptr, segment.p1());
+    leafA = bindWithParentRef(std::get<0>(traps[0]), std::get<1>(traps[0]), std::get<2>(traps[0]), std::get<3>(traps[0]), pi->getLeftChild());
+    pi->setLeftChild(leafA);
+    DagNodeSegment* si = new DagNodeSegment(nullptr, nullptr, segment);
+    leafB = bindWithParentRef(std::get<0>(traps[1]), std::get<1>(traps[1]), std::get<2>(traps[1]), std::get<3>(traps[1]), si->getLeftChild());
+    leafC = bindWithParentRef(std::get<0>(traps[2]), std::get<1>(traps[2]), std::get<2>(traps[2]), std::get<3>(traps[2]), si->getRightChild());
+    pi->setRightChild(si);
+    si->setLeftChild(leafB);
+    si->setRightChild(leafC);
+    itr = ref.end();
+    iterators[2] = &*(--itr);
+    iterators[1] = &*(--itr);
+    iterators[0] = &*(--itr);
+
+    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftDown(),*iterators[1], *iterators[2]); //A
+    iterators[1]->setNeighbors(*iterators[0], *iterators[0],trap.getRightUp(), trap.getRightUp()); //B
+    iterators[2]->setNeighbors(*iterators[0], *iterators[0],trap.getRightDown(), trap.getRightDown());
+
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
+        trap.getLeftUp().setRightUp(*iterators[0]);
+    if(!trap.leftUpNull() && trap.getLeftUp().getRightDown()==trap)
+        trap.getLeftUp().setRightDown(*iterators[0]);
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightUp()==trap)
+        trap.getLeftDown().setRightUp(*iterators[0]);
+    if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap)
+        trap.getLeftDown().setRightDown(*iterators[0]);
+
+    if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap)
+        trap.getRightUp().setLeftUp(*iterators[1]);
+    if(!trap.rightUpNull())
+        trap.getRightUp().setLeftDown(*iterators[1]);
+    if(!trap.rightDownNull())
+        trap.getRightDown().setLeftUp(*iterators[2]);
+    if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap)
+        trap.getRightDown().setLeftDown(*iterators[2]);
+    TrapezoidalMap::removeTrapezoid(trap.getItr());
+
+    return pi;
+}
+
+DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted)
 {
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
@@ -510,7 +680,7 @@ DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, Dag
     bool upper;
     std::vector<Trapezoid*> iterators(2);
     InnerNodes* si;// = new DagNodeSegment(segment);
-    const Trapezoid& trap = leaf.getT();
+    Trapezoid& trap = leaf.getT();
     std::vector<cg3::Point2d> ints = {intersection(segment, trap.getTop().p1()), intersection(segment, trap.getTop().p2())};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
         std::make_tuple(cg3::Segment2d(trap.getTop().p1(),trap.getTop().p2()),cg3::Segment2d(ints[0], ints[1]),(trap.getLeftp().y()<ints[0].y())?ints[0]:trap.getLeftp(), (trap.getRightp().y()<ints[1].y())?ints[1]:trap.getRightp()),
@@ -563,21 +733,24 @@ DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, Dag
 //    iterators[0]->setItr(itr);
 
     //garbageCollector.push_back(trap.getItr());
-    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 1, prevSeg);
 
-//    if(upper){
-//        iterators[0]->setRightUp(trap.getRightUp());
-//        iterators[0]->setRightDown((iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp());
-//        iterators[1]->setNeighbors(trap.getLeftUp(), trap.getLeftDown(),
-//                                   (iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp(),
-//                                    trap.getRightDown());//
-//    }
-//    else{
-//        iterators[0]->setNeighbors(trap.getLeftUp(), trap.getLeftDown(),trap.getRightUp(),
-//                                   (iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
-//        iterators[1]->setRightUp((iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
-//        iterators[1]->setRightDown(trap.getRightDown());
-//    }
+
+
+    if(upper){
+        iterators[0]->setRightUp(trap.getRightUp());
+        iterators[0]->setRightDown((iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp());
+        iterators[1]->setNeighbors(trap.getLeftUp(), trap.getLeftDown(),
+                                   (iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp(),
+                                    trap.getRightDown());//
+    }
+    else{
+        iterators[0]->setNeighbors(trap.getLeftUp(), trap.getLeftDown(),trap.getRightUp(),
+                                   (iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
+        iterators[1]->setRightUp((iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
+        iterators[1]->setRightDown(trap.getRightDown());
+    }
+    TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 1, prevSeg, lastDeleted);
+    lastDeleted = &trap;
     //iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),*iterators[2], *iterators[2]);//
     //iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),*iterators[2], *iterators[2]);//
 

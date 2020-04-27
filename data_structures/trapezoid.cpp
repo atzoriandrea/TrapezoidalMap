@@ -56,6 +56,11 @@ void Trapezoid::setRightp(const cg3::Point2d &value)
     rightp = value;
 }
 
+bool Trapezoid::leftUpNull() const
+{
+    return leftUp==nullptr;
+}
+
 Trapezoid& Trapezoid::getLeftUp() const
 {
     return *leftUp;
@@ -64,6 +69,11 @@ Trapezoid& Trapezoid::getLeftUp() const
 void Trapezoid::setLeftUp(Trapezoid &value)
 {
     leftUp = &value;
+}
+
+bool Trapezoid::leftDownNull() const
+{
+    return leftDown==nullptr;
 }
 
 Trapezoid& Trapezoid::getLeftDown() const
@@ -76,6 +86,11 @@ void Trapezoid::setLeftDown(Trapezoid& value)
     leftDown = &value;
 }
 
+bool Trapezoid::rightUpNull() const
+{
+    return rightUp==nullptr;
+}
+
 Trapezoid &Trapezoid::getRightUp() const
 {
     return *rightUp;
@@ -84,6 +99,11 @@ Trapezoid &Trapezoid::getRightUp() const
 void Trapezoid::setRightUp(Trapezoid &value)
 {
     rightUp = &value;
+}
+
+bool Trapezoid::rightDownNull() const
+{
+    return rightDown==nullptr;
 }
 
 Trapezoid &Trapezoid::getRightDown() const
