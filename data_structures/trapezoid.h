@@ -9,6 +9,7 @@ class Trapezoid
 {
 public:
     Trapezoid();
+    ~Trapezoid();
     Trapezoid& operator=(Trapezoid& other){
         *this = other;
         //this->defaultNode=other.defaultNode;

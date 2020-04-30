@@ -171,12 +171,12 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
                 ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightUp(*heirs[0]);
             if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightDown()==t)
                 ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightDown(*heirs[0]);
-            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightUp()==t)
+            if(t.getLeftUp()!= *lastDeleted &&  t.getLeftUp().getRightUp()==t)
                 t.getLeftUp().setRightUp(*heirs[0]);
             if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightDown()==t)
                 t.getLeftUp().setRightDown(*heirs[0]);
-            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightUp()==t)
-                t.getLeftDown().setRightUp(*heirs[0]);
+//            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightUp()==t)
+//                t.getLeftDown().setRightUp(*heirs[0]);
             if(rightUp!=nullptr && rightDown!=nullptr){
                 if(rightUp == rightDown){
                     rightUp->setLeftDown(*heirs[0]);
@@ -216,8 +216,8 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
                 t.getLeftDown().setRightUp(*heirs[1]);
             if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightDown()==t)
                 t.getLeftDown().setRightDown(*heirs[1]);
-            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightDown()==t)
-                t.getLeftUp().setRightDown(*heirs[1]);
+//            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightDown()==t)
+//                t.getLeftUp().setRightDown(*heirs[1]);
 //            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightUp()==t)
 //                t.getLeftUp().setRightUp(*heirs[1]);
             if(rightUp!=nullptr && rightDown!=nullptr){
@@ -253,7 +253,27 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
 
     }
     if(type == rightmost){
-        updateNeighborsMultiTrapezoid(t, heirs, 1, prevSeg, lastDeleted);
+       //updateNeighborsMultiTrapezoid(t, heirs, 1, prevSeg, lastDeleted);
+        if(heirs[0]->getTop().p1()==t.getTop().p1()){ //Il trapeziode unito è quello in basso
+            if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==t)
+                ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightUp(*heirs[0]);
+            if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightDown()==t)
+                ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightDown(*heirs[0]);
+            if(t.getLeftUp()!= *lastDeleted &&  t.getLeftUp().getRightUp()==t)
+                t.getLeftUp().setRightUp(*heirs[0]);
+            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightDown()==t)
+                t.getLeftUp().setRightDown(*heirs[0]);
+        }
+        else{ //Il trapezoide unito è quello in alto
+            if(((DagNodeArea*)prevSeg.getRightChild())->getT().getRightUp()==t)
+                ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightUp(*heirs[1]);
+            if(((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()==t)
+                ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightDown(*heirs[1]);
+            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightUp()==t)
+                t.getLeftDown().setRightUp(*heirs[1]);
+            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightDown()==t)
+                t.getLeftDown().setRightDown(*heirs[1]);
+        }
         if(rightUp!=nullptr && rightDown!=nullptr){
             if(rightUp->getLeftUp()==t)
                 rightUp->setLeftUp(*heirs[2]);

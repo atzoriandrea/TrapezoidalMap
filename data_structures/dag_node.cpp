@@ -50,13 +50,13 @@ DagNodeSegment::DagNodeSegment(DagNode *lc, DagNodeArea *&right, const cg3::Segm
 
 
 DagNode* DagNodePoint::compareNodeToPoint(const cg3::Point2d& point){
-    return (this->point.x()>point.x())? this->getLeftChild() : this->getRightChild();
+    return (point.x()<this->point.x())? this->getLeftChild() : this->getRightChild();
 }
 
 DagNode* DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
-    if(segment.p2().x()<this->point.x())
+    if(segment.p2().x()<=this->point.x())
         return this->getLeftChild();
-    if(segment.p1().x()>this->point.x())
+    if(segment.p1().x()>=this->point.x())
         return this->getRightChild();
     long double res = matrixDet(segment, this->point);
     return (res < 0)? this->getLeftChild():this->getRightChild();
@@ -94,6 +94,11 @@ void DagNodeSegment::setItr(const std::list<DagNodeSegment>::iterator &value)
     itr = value;
 }
 
+cg3::Segment2d DagNodeSegment::getSegment() const
+{
+    return segment;
+}
+
 void DagNodeArea::setItr(const std::list<DagNodeArea>::iterator &value)
 {
     itr = value;
@@ -111,6 +116,7 @@ void DagNodeArea::setItr(const std::list<DagNodeArea>::iterator &value)
 DagNode* DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     long double res;
     res = matrixDet(this->segment, point);
+
     return (res < 0)? this->getRightChild():this->getLeftChild();
 }
 

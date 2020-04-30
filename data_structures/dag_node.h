@@ -100,6 +100,8 @@ public:
     std::list<DagNodeSegment>::iterator& getItr();
     void setItr(const std::list<DagNodeSegment>::iterator &value);
 
+    cg3::Segment2d getSegment() const;
+
 private:
     cg3::Segment2d segment;
     std::list<DagNodeSegment>::iterator itr;

@@ -5,6 +5,34 @@
 
 //}
 
+Trapezoid::~Trapezoid()
+{
+//    if(leftUp!=nullptr){
+//        if(leftUp->rightUp==this)
+//            leftUp->rightUp=nullptr;
+//        if(leftUp->rightDown==this)
+//            leftUp->rightDown=nullptr;
+//    }
+//    if(leftDown!=nullptr){
+//        if(leftDown->rightUp==this)
+//            leftDown->rightUp=nullptr;
+//        if(leftDown->rightDown==this)
+//            leftDown->rightDown=nullptr;
+//    }
+//    if(rightUp!=nullptr){
+//        if(rightUp->leftUp==this)
+//            rightUp->leftUp=nullptr;
+//        if(rightUp->leftDown==this)
+//            rightUp->leftDown=nullptr;
+//    }
+//    if(rightDown!=nullptr){
+//        if(rightDown->leftUp==this)
+//            rightDown->leftUp=nullptr;
+//        if(rightDown->leftDown==this)
+//            rightDown->leftDown=nullptr;
+//    }
+}
+
 Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea*& n):node(n){
     this->top = top;
     this->bottom = bottom;
