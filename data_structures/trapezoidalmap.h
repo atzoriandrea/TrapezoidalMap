@@ -16,7 +16,7 @@ public:
     static std::list<Trapezoid>& init(Trapezoid& ref);
     static Trapezoid &getBoundingBox();
     static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
-    static void updateNeighborsMultiTrapezoid(const Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+    static void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
     static DagNodeArea *& merge(Trapezoid& tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&);
     static void deleteGarbage(std::vector<std::list<Trapezoid>::iterator>& garbage);
 private:

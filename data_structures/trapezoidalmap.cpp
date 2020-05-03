@@ -98,22 +98,18 @@ void TrapezoidalMap::updateNeighbors(const Trapezoid &t, std::vector<Trapezoid*>
         }
     }
     if(rightUp !=nullptr && rightDown !=nullptr){
-        if (rightUp==rightDown){
-            if(t.getTop().p2()==rightUp->getLeftp())
-                rightUp->setLeftDown(*heirs[3]);
-            else
-                rightUp->setLeftUp(*heirs[3]);
-        }
-        else{
-            rightUp->setLeftUp(*heirs[3]);
-            rightUp->setLeftDown(*heirs[3]);
+        if(rightDown->getLeftUp()==t)
             rightDown->setLeftUp(*heirs[3]);
+        if(rightDown->getLeftDown()==t)
             rightDown->setLeftDown(*heirs[3]);
-        }
+        if(rightUp->getLeftUp()==t)
+            rightUp->setLeftUp(*heirs[3]);
+        if(rightUp->getLeftDown()==t)
+            rightUp->setLeftDown(*heirs[3]);
     }
 }
 
-void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vector<Trapezoid *> &heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted)
+void TrapezoidalMap::updateNeighborsMultiTrapezoid(Trapezoid &t, std::vector<Trapezoid *> &heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted)
 {
     enum insertionType {leftmost = 0, intermediate = 1, rightmost = 2};
     Trapezoid* leftUp = &t.getLeftUp();
@@ -128,9 +124,7 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
         (heirs[1]->getBottom().p2().y()>t.getRightp().y())?aboverightp=true:aboverightp=false; //check if the segment will pass under or above the current rightp
         (heirs[0]->getTop().p1().y()>=t.getLeftp().y())?aboveleftp=true:aboveleftp=false; // check where the new trapezoids are inserted with respect to previous trapezoid's segment
         (heirs[0]->getRightp()==t.getLeftp())?degenerate=true:degenerate=false; //check if the new segment has as a leftpoint a point of a previous segment
-        heirs[0]->setNeighbors(t.getLeftUp(),t.getLeftDown(),*heirs[1], *heirs[2]); //
-        heirs[1]->setNeighbors(*heirs[0],*heirs[0], t.getRightUp(), (aboverightp)?t.getRightUp():t.getRightDown());// be careful on right side neighbors
-        heirs[2]->setNeighbors(*heirs[0],*heirs[0], (aboverightp)?t.getRightUp():t.getRightDown(), t.getRightDown());//also there
+
         //from old to new
         if(leftUp!=nullptr && leftDown!=nullptr){
             if(leftUp->getRightUp()==t)
@@ -162,11 +156,15 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
             if(rightUp->getLeftDown()==t)
                 rightUp->setLeftDown(*heirs[1]);
         }
+        heirs[0]->setNeighbors(t.getLeftUp(),t.getLeftDown(),*heirs[1], *heirs[2]); //
+        heirs[1]->setNeighbors(*heirs[0],*heirs[0], t.getRightUp(), (aboverightp)?t.getRightUp():t.getRightDown());// be careful on right side neighbors
+        heirs[2]->setNeighbors(*heirs[0],*heirs[0], (aboverightp)?t.getRightUp():t.getRightDown(), t.getRightDown());//also there
 
     }
     if(type == intermediate){
-
         if(heirs[0]->getTop().p1()==t.getTop().p1()){ //Il trapeziode unito è quello in basso
+            if(t.getLeftUp()==*lastDeleted)
+                t.setLeftUp(((DagNodeArea*)prevSeg.getLeftChild())->getT());
             if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightUp()==t)
                 ((DagNodeArea*)prevSeg.getLeftChild())->getT().setRightUp(*heirs[0]);
             if(((DagNodeArea*)prevSeg.getLeftChild())->getT().getRightDown()==t)
@@ -177,37 +175,36 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
                 t.getLeftUp().setRightDown(*heirs[0]);
 //            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightUp()==t)
 //                t.getLeftDown().setRightUp(*heirs[0]);
-            if(rightUp!=nullptr && rightDown!=nullptr){
-                if(rightUp == rightDown){
-                    rightUp->setLeftDown(*heirs[0]);
-                }
-                else{
-                    if(heirs[0]->getBottom().p2().y()>t.getRightp().y()){
-                        if(rightUp->getLeftUp()==t)
-                            rightUp->setLeftUp(*heirs[0]);
-                        if(rightUp->getLeftDown()==t)
-                            rightUp->setLeftDown(*heirs[1]);
-                        if(rightDown->getLeftUp()==t)
-                            rightDown->setLeftUp(*heirs[1]);
-                        if(rightDown->getLeftDown()==t)
-                            rightDown->setLeftDown(*heirs[1]);
-                    }
-                    else{
-                        if(rightUp->getLeftUp()==t)
-                            rightUp->setLeftUp(*heirs[0]);
-                        if(rightUp->getLeftDown()==t)
-                            rightUp->setLeftDown(*heirs[0]);
-                        if(rightDown->getLeftUp()==t)
-                            rightDown->setLeftUp(*heirs[0]);
-                        if(rightDown->getLeftDown()==t)
-                            rightDown->setLeftDown(*heirs[1]);
-                    }
-                }
-            }
 //            if(t.getLeftDown()!= *lastDeleted && t.getLeftDown().getRightDown()==t)
 //                t.getLeftDown().setRightDown(*heirs[0]);
+            if(rightUp!=nullptr && rightDown!=nullptr){
+                if(heirs[0]->getBottom().p2().y()>t.getRightp().y()){
+                    if(rightUp->getLeftUp()==t)
+                        rightUp->setLeftUp(*heirs[0]);
+                    if(rightUp->getLeftDown()==t)
+                        rightUp->setLeftDown(*heirs[1]);
+                    if(rightDown->getLeftUp()==t)
+                        rightDown->setLeftUp(*heirs[1]);
+                    if(rightDown->getLeftDown()==t)
+                        rightDown->setLeftDown(*heirs[1]);
+                }
+                else{
+                    if(rightUp->getLeftUp()==t)
+                        rightUp->setLeftUp(*heirs[0]);
+                    if(rightUp->getLeftDown()==t)
+                        rightUp->setLeftDown(*heirs[0]);
+                    if(rightDown->getLeftUp()==t)
+                        rightDown->setLeftUp(*heirs[0]);
+                    if(rightDown->getLeftDown()==t)
+                        rightDown->setLeftDown(*heirs[1]);
+                }
+
+            }
+
         }
         else{ //Il trapezoide unito è quello in alto
+            if(t.getLeftDown()==*lastDeleted)
+                t.setLeftDown(((DagNodeArea*)prevSeg.getRightChild())->getT());
             if(((DagNodeArea*)prevSeg.getRightChild())->getT().getRightUp()==t)
                 ((DagNodeArea*)prevSeg.getRightChild())->getT().setRightUp(*heirs[1]);
             if(((DagNodeArea*)prevSeg.getRightChild())->getT().getRightDown()==t)
@@ -221,32 +218,29 @@ void TrapezoidalMap::updateNeighborsMultiTrapezoid(const Trapezoid &t, std::vect
 //            if(t.getLeftUp()!= *lastDeleted && t.getLeftUp().getRightUp()==t)
 //                t.getLeftUp().setRightUp(*heirs[1]);
             if(rightUp!=nullptr && rightDown!=nullptr){
-                if(rightUp == rightDown){
-                    rightDown->setLeftUp(*heirs[1]);
+
+                if(heirs[0]->getBottom().p2().y()>t.getRightp().y()){
+                    if(rightUp->getLeftUp()==t)
+                        rightUp->setLeftUp(*heirs[0]);
+                    if(rightUp->getLeftDown()==t)
+                        rightUp->setLeftDown(*heirs[1]);
+                    if(rightDown->getLeftUp()==t)
+                        rightDown->setLeftUp(*heirs[1]);
+                    if(rightDown->getLeftDown()==t)
+                        rightDown->setLeftDown(*heirs[1]);
                 }
                 else{
-                    if(heirs[0]->getBottom().p2().y()>t.getRightp().y()){
-                        if(rightUp->getLeftUp()==t)
-                            rightUp->setLeftUp(*heirs[0]);
-                        if(rightUp->getLeftDown()==t)
-                            rightUp->setLeftDown(*heirs[1]);
-                        if(rightDown->getLeftUp()==t)
-                            rightDown->setLeftUp(*heirs[1]);
-                        if(rightDown->getLeftDown()==t)
-                            rightDown->setLeftDown(*heirs[1]);
-                    }
-                    else{
-                        if(rightUp->getLeftUp()==t)
-                            rightUp->setLeftUp(*heirs[0]);
-                        if(rightUp->getLeftDown()==t)
-                            rightUp->setLeftDown(*heirs[0]);
-                        if(rightDown->getLeftUp()==t)
-                            rightDown->setLeftUp(*heirs[0]);
-                        if(rightDown->getLeftDown()==t)
-                            rightDown->setLeftDown(*heirs[1]);
-                    }
+                    if(rightUp->getLeftUp()==t)
+                        rightUp->setLeftUp(*heirs[0]);
+                    if(rightUp->getLeftDown()==t)
+                        rightUp->setLeftDown(*heirs[0]);
+                    if(rightDown->getLeftUp()==t)
+                        rightDown->setLeftUp(*heirs[0]);
+                    if(rightDown->getLeftDown()==t)
+                        rightDown->setLeftDown(*heirs[1]);
                 }
             }
+
 
         }
 
