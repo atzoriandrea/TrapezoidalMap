@@ -96,14 +96,9 @@ size_t TrapezoidalMapDataset::addSegment(const cg3::Segment2d& segment, bool& se
                 }
                 assert(id1 != id2 && id1 < points.size() && id2 < points.size());
 
-                IndexedSegment2d indexedSegment(id1, id2);
-                if (indexedSegment.second < indexedSegment.first) {
-                    std::swap(indexedSegment.first, indexedSegment.second);
-                }
+                indexedSegments.push_back(IndexedSegment2d(id1, id2));
 
-                indexedSegments.push_back(indexedSegment);
-
-                segmentMap.insert(std::make_pair(indexedSegment, id));
+                segmentMap.insert(std::make_pair(IndexedSegment2d(id1, id2), id));
 
                 intersectionChecker.insert(orderedSegment);
             }
@@ -118,32 +113,26 @@ size_t TrapezoidalMapDataset::addIndexedSegment(const IndexedSegment2d& indexedS
     bool found;
     size_t id;
 
-    IndexedSegment2d orderedIndexedSegment = indexedSegment;
-    if (indexedSegment.second < indexedSegment.first) {
-        orderedIndexedSegment.first = indexedSegment.second;
-        orderedIndexedSegment.second = indexedSegment.first;
-    }
-
-    findIndexedSegment(orderedIndexedSegment, found);
+    findIndexedSegment(indexedSegment, found);
 
     segmentInserted = false;
     id = std::numeric_limits<size_t>::max();
 
-    bool degenerate = orderedIndexedSegment.first == orderedIndexedSegment.second;
+    bool degenerate = indexedSegment.first == indexedSegment.second;
 
     if (!degenerate && !found) {
-        bool intersecting = intersectionChecker.checkIntersections(cg3::Segment2d(points[orderedIndexedSegment.first], points[orderedIndexedSegment.second]));
+        bool intersecting = intersectionChecker.checkIntersections(cg3::Segment2d(points[indexedSegment.first], points[indexedSegment.second]));
 
         if (!intersecting) {
             segmentInserted = true;
 
             id = indexedSegments.size();
 
-            indexedSegments.push_back(orderedIndexedSegment);
+            indexedSegments.push_back(IndexedSegment2d(indexedSegment.first, indexedSegment.second));
 
-            segmentMap.insert(std::make_pair(orderedIndexedSegment, id));
+            segmentMap.insert(std::make_pair(IndexedSegment2d(indexedSegment.first, indexedSegment.second), id));
 
-            intersectionChecker.insert(cg3::Segment2d(points[orderedIndexedSegment.first], points[orderedIndexedSegment.second]));
+            intersectionChecker.insert(cg3::Segment2d(points[indexedSegment.first], points[indexedSegment.second]));
         }
     }
 
@@ -170,19 +159,13 @@ size_t TrapezoidalMapDataset::findSegment(const cg3::Segment2d& segment, bool& f
 {
     found = false;
 
-    cg3::Segment2d orderedSegment = segment;
-    if (segment.p2() < segment.p1()) {
-        orderedSegment.setP1(segment.p2());
-        orderedSegment.setP2(segment.p1());
-    }
-
     bool foundPoint1;
-    size_t id1 = findPoint(orderedSegment.p1(), foundPoint1);
+    size_t id1 = findPoint(segment.p1(), foundPoint1);
     if (!foundPoint1)
         return std::numeric_limits<size_t>::max();
 
     bool foundPoint2;
-    size_t id2 = findPoint(orderedSegment.p2(), foundPoint2);
+    size_t id2 = findPoint(segment.p2(), foundPoint2);
     if (!foundPoint2)
         return std::numeric_limits<size_t>::max();
 
@@ -191,13 +174,7 @@ size_t TrapezoidalMapDataset::findSegment(const cg3::Segment2d& segment, bool& f
 
 size_t TrapezoidalMapDataset::findIndexedSegment(const IndexedSegment2d& indexedSegment, bool& found)
 {
-    IndexedSegment2d orderedIndexedSegment = indexedSegment;
-    if (indexedSegment.second < indexedSegment.first) {
-        orderedIndexedSegment.first = indexedSegment.second;
-        orderedIndexedSegment.second = indexedSegment.first;
-    }
-
-    std::unordered_map<IndexedSegment2d, size_t>::iterator it = segmentMap.find(orderedIndexedSegment);
+    std::unordered_map<IndexedSegment2d, size_t>::iterator it = segmentMap.find(indexedSegment);
 
     //Segment already in the data structure
     if (it != segmentMap.end()) {
@@ -281,5 +258,3 @@ void TrapezoidalMapDataset::clear()
     boundingBox.setMax(cg3::Point2d(0,0));
     intersectionChecker.clear();
 }
-
-
