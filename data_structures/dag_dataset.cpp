@@ -128,10 +128,12 @@ DagNodePoint *Dag::leftDegenerateSingleInsertion(DagNode *node, cg3::Segment2d &
     iterators[0] = &*(--itr);
     iterators[2] = &*(--itr);
 
-    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),*iterators[2], *iterators[2]); //A
-    iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),*iterators[2], *iterators[2]); //B
-    iterators[2]->setNeighbors(*iterators[0], *iterators[1],trap.getRightUp(), trap.getRightDown());
 
+    iterators[2]->setNeighbors(*iterators[0], *iterators[1],trap.getRightUp(), trap.getRightDown());
+    iterators[1]->setRightUp(*iterators[2]);
+    iterators[1]->setRightDown(*iterators[2]);
+    iterators[0]->setRightUp(*iterators[2]);
+    iterators[0]->setRightDown(*iterators[2]);
 
     if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap)
         trap.getRightUp().setLeftUp(*iterators[2]);
@@ -141,26 +143,46 @@ DagNodePoint *Dag::leftDegenerateSingleInsertion(DagNode *node, cg3::Segment2d &
         trap.getRightDown().setLeftUp(*iterators[2]);
     if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap)
         trap.getRightDown().setLeftDown(*iterators[2]);
-    if(!linear){
-        if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap && !triangleOver)
-            trap.getLeftUp().setRightUp(*iterators[0]);
-        if(!trap.leftUpNull() && !triangleOver)
-            trap.getLeftUp().setRightDown(*iterators[0]);
+    if(trap.getTop().p1()!=trap.getBottom().p1()){
+        if(!linear){
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap && !triangleOver)
+                trap.getLeftUp().setRightUp(*iterators[0]);
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightDown()==trap && !triangleOver)
+                trap.getLeftUp().setRightDown(*iterators[0]);
 
-        if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap && triangleOver)
-            trap.getLeftDown().setRightDown(*iterators[1]);
-        if(!trap.leftDownNull() && triangleOver)
-            trap.getLeftDown().setRightUp(*iterators[1]);
-    }else{
-        if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap )
-            trap.getLeftUp().setRightUp(*iterators[0]);
-        if(!trap.leftUpNull())
-            trap.getLeftUp().setRightDown(*iterators[0]);
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap && triangleOver)
+                trap.getLeftDown().setRightDown(*iterators[1]);
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightUp()==trap && triangleOver)
+                trap.getLeftDown().setRightUp(*iterators[1]);
 
-        if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap )
-            trap.getLeftDown().setRightDown(*iterators[1]);
-        if(!trap.leftDownNull())
-            trap.getLeftDown().setRightUp(*iterators[1]);
+            if(!triangleOver){
+                iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), *iterators[2], *iterators[2]);// be careful on right side neighbors
+
+            }else{
+
+                iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), *iterators[2],*iterators[2]);//also there
+            }
+        }else{
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap )
+                trap.getLeftUp().setRightUp(*iterators[0]);
+            if(!trap.leftUpNull())
+                trap.getLeftUp().setRightDown(*iterators[0]);
+
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap )
+                trap.getLeftDown().setRightDown(*iterators[1]);
+            if(!trap.leftDownNull())
+                trap.getLeftDown().setRightUp(*iterators[1]);
+
+            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),*iterators[2], *iterators[2]); //A
+            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),*iterators[2], *iterators[2]); //B
+        }
+
+    }
+    else{
+        iterators[0]->setRightUp(*iterators[2]);
+        iterators[0]->setRightDown(*iterators[2]);
+        iterators[1]->setRightUp(*iterators[2]);
+        iterators[1]->setRightDown(*iterators[2]);
     }
 
     TrapezoidalMap::removeTrapezoid(trap.getItr());
@@ -176,7 +198,16 @@ DagNodePoint *Dag::rightDegenerateSingleInsertion(DagNode *node, cg3::Segment2d 
     DagNode * leafA;
     DagNode * leafB;
     DagNode * leafC;
+    bool triangleOver;
+    bool linear = false;
     const Trapezoid& trap = {((DagNodeArea*)node)->getT()};
+
+    if(segment.p2()==trap.getTop().p2())
+        triangleOver = true;
+    if(segment.p2()==trap.getBottom().p2())
+        triangleOver = false;
+    if(segment.p2()!=trap.getTop().p2() && segment.p2()!=trap.getBottom().p2())
+        linear = true;
     std::vector<cg3::Point2d> ints = {intersection(trap.getTop(), segment.p1()),intersection(trap.getBottom(), segment.p1())};
 
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
@@ -199,8 +230,12 @@ DagNodePoint *Dag::rightDegenerateSingleInsertion(DagNode *node, cg3::Segment2d 
     iterators[0] = &*(--itr);
 
     iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftDown(),*iterators[1], *iterators[2]); //A
-    iterators[1]->setNeighbors(*iterators[0], *iterators[0],trap.getRightUp(), trap.getRightUp()); //B
-    iterators[2]->setNeighbors(*iterators[0], *iterators[0],trap.getRightDown(), trap.getRightDown());
+    iterators[1]->setLeftUp(*iterators[0]);
+    iterators[1]->setLeftDown(*iterators[0]);
+    iterators[2]->setLeftUp(*iterators[0]);
+    iterators[2]->setLeftDown(*iterators[0]);
+//    iterators[1]->setNeighbors(*iterators[0], *iterators[0],trap.getRightUp(), trap.getRightUp()); //B
+//    iterators[2]->setNeighbors(*iterators[0], *iterators[0],trap.getRightDown(), trap.getRightDown());
 
     if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
         trap.getLeftUp().setRightUp(*iterators[0]);
@@ -210,15 +245,49 @@ DagNodePoint *Dag::rightDegenerateSingleInsertion(DagNode *node, cg3::Segment2d 
         trap.getLeftDown().setRightUp(*iterators[0]);
     if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap)
         trap.getLeftDown().setRightDown(*iterators[0]);
+    if(trap.getTop().p2()!=trap.getBottom().p2()){
+        if(!linear){
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap && !triangleOver)
+                trap.getRightUp().setLeftUp(*iterators[1]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap && !triangleOver)
+                trap.getRightUp().setLeftDown(*iterators[1]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap && triangleOver)
+                trap.getRightDown().setLeftDown(*iterators[2]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap && triangleOver)
+                trap.getRightDown().setLeftUp(*iterators[2]);
+            if(!triangleOver){
+                iterators[1]->setRightUp(trap.getRightUp());
+                iterators[1]->setRightDown(trap.getRightUp());
+//                iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), trap.getRightUp());// be careful on right side neighbors
+//                iterators[1]->setRightUp(trap.getRightDown());
+//                iterators[1]->setRightDown(trap.getRightDown());
+            }else{
+                iterators[2]->setRightUp(trap.getRightDown());
+                iterators[2]->setRightDown(trap.getRightDown());
+//                iterators[0]->setRightUp(trap.getRightUp());
+//                iterators[0]->setRightDown(trap.getRightUp());
+//                iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), trap.getRightDown(),trap.getRightDown());//also there
+            }
+        }else{
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap )
+                trap.getRightUp().setLeftUp(*iterators[1]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap)
+                trap.getRightUp().setLeftDown(*iterators[1]);
 
-    if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap)
-        trap.getRightUp().setLeftUp(*iterators[1]);
-    if(!trap.rightUpNull())
-        trap.getRightUp().setLeftDown(*iterators[1]);
-    if(!trap.rightDownNull())
-        trap.getRightDown().setLeftUp(*iterators[2]);
-    if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap)
-        trap.getRightDown().setLeftDown(*iterators[2]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap )
+                trap.getRightDown().setLeftDown(*iterators[2]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap )
+                trap.getRightDown().setLeftUp(*iterators[2]);
+
+            iterators[1]->setRightUp(trap.getRightUp());
+            iterators[1]->setRightDown(trap.getRightUp());
+            iterators[2]->setRightUp(trap.getRightDown());
+            iterators[2]->setRightDown(trap.getRightDown());
+
+//            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
+//            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
+        }
+    }
     TrapezoidalMap::removeTrapezoid(trap.getItr());
 
     return pi;
@@ -231,11 +300,27 @@ DagNodeSegment *Dag::totallyDegenerateSingleInsertion(DagNode *node, cg3::Segmen
     std::vector<Trapezoid*> iterators(2);
     DagNode * leafA;
     DagNode * leafB;
+    bool triangleOverLeft;
+    bool triangleOverRight;
+    bool linearRight;
+    bool linearLeft = false;
     const Trapezoid& trap = {((DagNodeArea*)node)->getT()};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
         std::make_tuple(cg3::Segment2d(trap.getTop().p1(),trap.getTop().p2()),cg3::Segment2d(segment.p1(),segment.p2()),segment.p1(), segment.p2()),
         std::make_tuple(cg3::Segment2d(segment.p1(),segment.p2()), cg3::Segment2d(trap.getBottom().p1(),trap.getBottom().p2()), segment.p1(), segment.p2())
     };
+    if(segment.p1()==trap.getTop().p1())
+        triangleOverLeft = true;
+    if(segment.p2()==trap.getTop().p2())
+        triangleOverRight = true;
+    if(segment.p1()==trap.getBottom().p1())
+        triangleOverLeft = false;
+    if(segment.p2()==trap.getBottom().p2())
+        triangleOverRight = false;
+    if(segment.p1()!=trap.getTop().p1() && segment.p1()!=trap.getBottom().p1())
+        linearLeft = true;
+    if(segment.p2()!=trap.getTop().p2() && segment.p2()!=trap.getBottom().p2())
+        linearRight = true;
     DagNodeSegment* si = new DagNodeSegment(nullptr, nullptr, segment);
     leafA = bindWithParentRef(std::get<0>(traps[0]), std::get<1>(traps[0]), std::get<2>(traps[0]), std::get<3>(traps[0]), si->getLeftChild());
     leafB = bindWithParentRef(std::get<0>(traps[1]), std::get<1>(traps[1]), std::get<2>(traps[1]), std::get<3>(traps[1]), si->getRightChild());
@@ -244,26 +329,112 @@ DagNodeSegment *Dag::totallyDegenerateSingleInsertion(DagNode *node, cg3::Segmen
     iterators[1] = &*(--itr);
     iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
     iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
-    if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap)
-        trap.getLeftUp().setRightUp(*iterators[0]);
-    if(!trap.leftUpNull())
-        trap.getLeftUp().setRightDown(*iterators[0]);
-    if(trap.getRightUp().getLeftUp()==trap)
-        trap.getRightUp().setLeftUp(*iterators[0]);
-    if(!trap.rightUpNull())
-        trap.getRightUp().setLeftDown(*iterators[0]);
-    if(!trap.leftDownNull())
-        trap.getLeftDown().setRightUp(*iterators[1]);
-    if(trap.getLeftDown().getRightDown()==trap)
-        trap.getLeftDown().setRightDown(*iterators[1]);
-    if(!trap.rightDownNull())
-        trap.getRightDown().setLeftUp(*iterators[1]);
-    if(trap.getRightDown().getLeftDown()==trap)
-        trap.getRightDown().setLeftDown(*iterators[1]);
+    if(trap.getTop().p1()!=trap.getBottom().p1()){
+        if(!linearLeft){
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap && !triangleOverLeft)
+                trap.getLeftUp().setRightUp(*iterators[0]);
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightDown()==trap && !triangleOverLeft)
+                trap.getLeftUp().setRightDown(*iterators[0]);
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap && triangleOverLeft)
+                trap.getLeftDown().setRightDown(*iterators[1]);
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightUp()==trap && triangleOverLeft)
+                trap.getLeftDown().setRightUp(*iterators[1]);
+            if(!triangleOverLeft){
+                //iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), trap.getRightUp());// be careful on right side neighbors
+                iterators[0]->setLeftUp(trap.getLeftUp());
+                iterators[0]->setLeftDown(trap.getLeftUp());
+//                iterators[1]->setRightUp(trap.getRightDown());
+//                iterators[1]->setRightDown(trap.getRightDown());
+            }else{
+//                iterators[0]->setRightUp(trap.getRightUp());
+//                iterators[0]->setRightDown(trap.getRightUp());
+                iterators[1]->setLeftUp(trap.getLeftUp());
+                iterators[1]->setLeftDown(trap.getLeftUp());
+                //iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), trap.getRightDown(),trap.getRightDown());//also there
+            }
+        }else{
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightUp()==trap )
+                trap.getLeftUp().setRightUp(*iterators[0]);
+            if(!trap.leftUpNull() && trap.getLeftUp().getRightDown()==trap)
+                trap.getLeftUp().setRightDown(*iterators[0]);
+
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap )
+                trap.getLeftDown().setRightDown(*iterators[1]);
+            if(!trap.leftDownNull() && trap.getLeftDown().getRightUp()==trap )
+                trap.getLeftDown().setRightUp(*iterators[1]);
+
+            iterators[0]->setLeftUp(trap.getLeftUp());
+            iterators[0]->setLeftDown(trap.getLeftUp());
+            iterators[1]->setLeftUp(trap.getLeftDown());
+            iterators[1]->setLeftDown(trap.getLeftDown());
+
+//            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
+//            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
+        }
+    }
+    if(trap.getTop().p2()!=trap.getBottom().p2()){
+        if(!linearRight){
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap && !triangleOverRight)
+                trap.getRightUp().setLeftUp(*iterators[0]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap && !triangleOverRight)
+                trap.getRightUp().setLeftDown(*iterators[0]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap && triangleOverRight)
+                trap.getRightDown().setLeftDown(*iterators[1]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap && triangleOverRight)
+                trap.getRightDown().setLeftUp(*iterators[1]);
+            if(!triangleOverRight){
+                iterators[0]->setRightUp(trap.getRightUp());
+                iterators[0]->setRightDown(trap.getRightUp());
+//                iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), trap.getRightUp());// be careful on right side neighbors
+//                iterators[1]->setRightUp(trap.getRightDown());
+//                iterators[1]->setRightDown(trap.getRightDown());
+            }else{
+                iterators[1]->setRightUp(trap.getRightDown());
+                iterators[1]->setRightDown(trap.getRightDown());
+//                iterators[0]->setRightUp(trap.getRightUp());
+//                iterators[0]->setRightDown(trap.getRightUp());
+//                iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), trap.getRightDown(),trap.getRightDown());//also there
+            }
+        }else{
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap )
+                trap.getRightUp().setLeftUp(*iterators[0]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap)
+                trap.getRightUp().setLeftDown(*iterators[0]);
+
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap )
+                trap.getRightDown().setLeftDown(*iterators[1]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap )
+                trap.getRightDown().setLeftUp(*iterators[1]);
+
+            iterators[0]->setRightUp(trap.getRightUp());
+            iterators[0]->setRightDown(trap.getRightUp());
+            iterators[1]->setRightUp(trap.getRightDown());
+            iterators[1]->setRightDown(trap.getRightDown());
+
+//            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
+//            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
+        }
+    }
+
+
+//    else{
+//        iterators[0]->setRightUp(trap.getRightUp());
+//        iterators[0]->setRightDown(trap.getRightUp());
+//        iterators[1]->setRightUp(trap.getRightDown());
+//        iterators[1]->setRightDown(trap.getRightDown());
+//    }
+
+//    if(trap.getRightUp().getLeftUp()==trap)
+//        trap.getRightUp().setLeftUp(*iterators[0]);
+//    if(!trap.rightUpNull())
+//        trap.getRightUp().setLeftDown(*iterators[0]);
+//    if(!trap.rightDownNull())
+//        trap.getRightDown().setLeftUp(*iterators[1]);
+//    if(trap.getRightDown().getLeftDown()==trap)
+//        trap.getRightDown().setLeftDown(*iterators[1]);
     TrapezoidalMap::removeTrapezoid(trap.getItr());
     return si;
 }
-
 
 DagNodeArea *Dag::bindWithParentRef(cg3::Segment2d &top, cg3::Segment2d &bottom, cg3::Point2d &leftp, cg3::Point2d &rightp, DagNode*& ref)
 {
@@ -301,36 +472,17 @@ DagNode*& Dag::searchAndAppend(const cg3::Segment2d &seg)
         else
             tmpdag = (matrixDet(seg, ((DagNodeSegment*)chosen)->getSegment().p2())<0)?chosen->getLeftChild():chosen->getRightChild();
     }
-//    if(chosen->getLeftChild()->getType()==DagNode::Leaf &&
-//       chosen->getRightChild()->getType()==DagNode::Leaf &&
-//       ((DagNodeArea*)chosen->getLeftChild())->getT().getLeftp()== seg.p1() &&
-//       ((DagNodeArea*)chosen->getRightChild())->getT().getLeftp()== seg.p1()){
-//       return (matrixDet(seg,((DagNodeArea*)chosen->getLeftChild())->getT().getBottom().p2()) < 0)?chosen->getLeftChild():chosen->getRightChild();
-//    }
+        if(chosen->getLeftChild()->getType()==DagNode::Leaf &&
+           chosen->getRightChild()->getType()==DagNode::Leaf &&
+           ((DagNodeArea*)chosen->getLeftChild())->getT().getLeftp()== seg.p1() &&
+           ((DagNodeArea*)chosen->getRightChild())->getT().getLeftp()== seg.p1()){
+           return (matrixDet(seg,((DagNodeArea*)chosen->getLeftChild())->getT().getBottom().p2()) < 0)?chosen->getLeftChild():chosen->getRightChild();
+        }
     if(chosen->leftChild == tmpdag)
         return chosen->getLeftChild();
     if(chosen->rightChild == tmpdag)
         return chosen->getRightChild();
 }
-
-//DagNode *Dag::splitNode(cg3::Segment2d &segment) //O(log n)
-//{
-//    DagNode* tmpdag=Dag::dag;
-//    DagNode* c1=nullptr;
-//    DagNode* c2=nullptr;
-//    bool splitted = false;
-//    if (tmpdag == nullptr)
-//        return nullptr;
-//    while(!splitted){
-//        c1 = tmpdag->compareNodeToPoint(segment.p1());
-//        c2 = tmpdag->compareNodeToPoint(segment.p2());
-//        if(c1==c2 && c1->getLeftChild()!=nullptr && c1->getRightChild()!=nullptr)
-//            tmpdag = c1;
-//        else
-//            splitted = true;
-//    }
-//    return tmpdag;
-//}
 
 void Dag::followSegment(cg3::Segment2d &segment, DagNodeArea *leaf){
     //std::list<DagNodeArea *> leaves;
@@ -441,8 +593,8 @@ DagNode *Dag::createLeftMostDegenerate(cg3::Segment2d &segment, DagNodeArea &lea
                                       intersection(segment, trap.getTop().p2())};
     (ints[2].y()>trap.getRightp().y())?aboverightp=true:aboverightp=false;
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
-        std::make_tuple(trap.getTop(),cg3::Segment2d(segment.p1(),ints[2]), segment.p1() , ints[2]),
-        std::make_tuple(cg3::Segment2d(segment.p1(),ints[2]),trap.getBottom(),segment.p1(), ints[2]),
+        std::make_tuple(trap.getTop(),cg3::Segment2d(segment.p1(),ints[2]), segment.p1() , (trap.getRightp().y()<ints[2].y())?ints[2]:trap.getRightp()),
+        std::make_tuple(cg3::Segment2d(segment.p1(),ints[2]),trap.getBottom(),segment.p1(), (trap.getRightp().y()>ints[2].y())?ints[2]:trap.getRightp()),
 
     };
     if(segment.p1()==trap.getTop().p1())
@@ -472,6 +624,15 @@ DagNode *Dag::createLeftMostDegenerate(cg3::Segment2d &segment, DagNodeArea &lea
                 trap.getLeftDown().setRightUp(*iterators[1]);
             if(!trap.leftDownNull() && trap.getLeftDown().getRightDown()==trap && triangleOver)
                 trap.getLeftDown().setRightDown(*iterators[1]);
+            if(!triangleOver){
+                iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), (aboverightp)?trap.getRightUp():trap.getRightDown());// be careful on right side neighbors
+                iterators[1]->setRightUp((aboverightp)?trap.getRightUp():trap.getRightDown());
+                iterators[1]->setRightDown(trap.getRightDown());
+            }else{
+                iterators[0]->setRightUp(trap.getRightUp());
+                iterators[0]->setRightDown((aboverightp)?trap.getRightUp():trap.getRightDown());
+                iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), (aboverightp)?trap.getRightUp():trap.getRightDown(), trap.getRightDown());//also there
+            }
         }
         else{
             trap.getLeftUp().setRightUp(*iterators[0]);
@@ -479,7 +640,16 @@ DagNode *Dag::createLeftMostDegenerate(cg3::Segment2d &segment, DagNodeArea &lea
 
             trap.getLeftDown().setRightUp(*iterators[1]);
             trap.getLeftDown().setRightDown(*iterators[1]);
+
+            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), (aboverightp)?trap.getRightUp():trap.getRightDown());// be careful on right side neighbors
+            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), (aboverightp)?trap.getRightUp():trap.getRightDown(), trap.getRightDown());//also there
         }
+    }
+    else{
+        iterators[0]->setRightUp(trap.getRightUp());
+        iterators[0]->setRightDown((aboverightp)?trap.getRightUp():trap.getRightDown());
+        iterators[1]->setRightUp((aboverightp)?trap.getRightUp():trap.getRightDown());
+        iterators[1]->setRightDown(trap.getRightDown());
     }
     if(aboverightp){
         if(rightDown->getLeftUp()==trap)
@@ -502,9 +672,8 @@ DagNode *Dag::createLeftMostDegenerate(cg3::Segment2d &segment, DagNodeArea &lea
             rightUp->setLeftDown(*iterators[0]);
     }
 
-    //from new to old neighbors   
-    iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), (aboverightp)?trap.getRightUp():trap.getRightDown());// be careful on right side neighbors
-    iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), (aboverightp)?trap.getRightUp():trap.getRightDown(), trap.getRightDown());//also there
+    //from new to old neighbors
+
     lastDeleted = &trap;
     TrapezoidalMap::removeTrapezoid(trap.getItr());
     return si;
@@ -575,14 +744,13 @@ DagNode *Dag::createRightMostDegenerate(cg3::Segment2d &segment, DagNodeArea &le
 {
     std::list<Trapezoid>& ref = TrapezoidalMap::getTrapezoids();
     std::list<Trapezoid>::iterator itr;
-    DagNode* ex;
     DagNode * leafA;
     DagNode * leafB;
     bool upper;
     bool triangleOver = false;
     bool linear = false;
     std::vector<Trapezoid*> iterators(2);
-    InnerNodes* si;// = new DagNodeSegment(segment);
+    InnerNodes* si;
     Trapezoid& trap = leaf.getT();
     std::vector<cg3::Point2d> ints = {intersection(segment, trap.getTop().p1()), intersection(segment, trap.getTop().p2())};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
@@ -630,37 +798,66 @@ DagNode *Dag::createRightMostDegenerate(cg3::Segment2d &segment, DagNodeArea &le
     }
 
     if(upper){
-        iterators[0]->setRightUp(trap.getRightUp());
-        iterators[0]->setRightDown((iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp());
-        iterators[1]->setNeighbors((trap.getLeftUp().getRightp().x()<iterators[1]->getRightp().x())?trap.getLeftUp():((DagNodeArea*)prevSeg.getRightChild())->getT(), trap.getLeftDown(),
+        //iterators[0]->setRightUp(trap.getRightUp());
+        //iterators[0]->setRightDown((iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp());
+        iterators[1]->setLeftUp((trap.getLeftUp().getRightp().x()<iterators[1]->getRightp().x())?trap.getLeftUp():((DagNodeArea*)prevSeg.getRightChild())->getT());
+        iterators[1]->setLeftDown(trap.getLeftDown());
+        /*iterators[1]->setNeighbors((trap.getLeftUp().getRightp().x()<iterators[1]->getRightp().x())?trap.getLeftUp():((DagNodeArea*)prevSeg.getRightChild())->getT(), trap.getLeftDown(),
                                    (iterators[0]->getBottom().p2().y()<trap.getRightp().y())?trap.getRightDown():trap.getRightUp(),
-                                    trap.getRightDown());//
+                                    trap.getRightDown());//*/
     }
     else{
-        iterators[0]->setNeighbors(trap.getLeftUp(),(trap.getLeftDown().getRightp().x()<iterators[0]->getRightp().x())?trap.getLeftDown():((DagNodeArea*)prevSeg.getLeftChild())->getT(),trap.getRightUp(),
-                                   (iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
-        iterators[1]->setRightUp((iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
-        iterators[1]->setRightDown(trap.getRightDown());
+        iterators[0]->setLeftUp(trap.getLeftUp());
+        iterators[0]->setLeftDown((trap.getLeftDown().getRightp().x()<iterators[0]->getRightp().x())?trap.getLeftDown():((DagNodeArea*)prevSeg.getLeftChild())->getT());
+        /*iterators[0]->setNeighbors(trap.getLeftUp(),(trap.getLeftDown().getRightp().x()<iterators[0]->getRightp().x())?trap.getLeftDown():((DagNodeArea*)prevSeg.getLeftChild())->getT(),trap.getRightUp(),
+                                   (iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());*/
+        //iterators[1]->setRightUp((iterators[1]->getTop().p2().y()>trap.getRightp().y())?trap.getRightUp():trap.getRightDown());
+        //iterators[1]->setRightDown(trap.getRightDown());
     }
-    if(!linear){
-        if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap && !triangleOver)
-            trap.getRightUp().setLeftUp(*iterators[0]);
-        if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap && !triangleOver)
-            trap.getRightUp().setLeftDown(*iterators[0]);
-        if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap && triangleOver)
-            trap.getRightDown().setLeftUp(*iterators[1]);
-        if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap && triangleOver)
-            trap.getRightDown().setLeftDown(*iterators[1]);
-    }
-    else{
-        trap.getRightUp().setLeftUp(*iterators[0]);
-        trap.getRightUp().setLeftDown(*iterators[0]);
-        trap.getRightDown().setLeftUp(*iterators[1]);
-        trap.getRightDown().setLeftDown(*iterators[1]);
+    if(trap.getTop().p2()!=trap.getBottom().p2()){
+        if(!linear){
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap && !triangleOver)
+                trap.getRightUp().setLeftUp(*iterators[0]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap && !triangleOver)
+                trap.getRightUp().setLeftDown(*iterators[0]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap && triangleOver)
+                trap.getRightDown().setLeftDown(*iterators[1]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap && triangleOver)
+                trap.getRightDown().setLeftUp(*iterators[1]);
+            if(!triangleOver){
+                iterators[0]->setRightUp(trap.getRightUp());
+                iterators[0]->setRightDown(trap.getRightUp());
+//                iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(), trap.getRightUp(), trap.getRightUp());// be careful on right side neighbors
+//                iterators[1]->setRightUp(trap.getRightDown());
+//                iterators[1]->setRightDown(trap.getRightDown());
+            }else{
+                iterators[1]->setRightUp(trap.getRightDown());
+                iterators[1]->setRightDown(trap.getRightDown());
+//                iterators[0]->setRightUp(trap.getRightUp());
+//                iterators[0]->setRightDown(trap.getRightUp());
+//                iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(), trap.getRightDown(),trap.getRightDown());//also there
+            }
+        }else{
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftUp()==trap )
+                trap.getRightUp().setLeftUp(*iterators[0]);
+            if(!trap.rightUpNull() && trap.getRightUp().getLeftDown()==trap)
+                trap.getRightUp().setLeftDown(*iterators[0]);
 
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftDown()==trap )
+                trap.getRightDown().setLeftDown(*iterators[1]);
+            if(!trap.rightDownNull() && trap.getRightDown().getLeftUp()==trap )
+                trap.getRightDown().setLeftUp(*iterators[1]);
+
+            iterators[0]->setRightUp(trap.getRightUp());
+            iterators[0]->setRightDown(trap.getRightUp());
+            iterators[1]->setRightUp(trap.getRightDown());
+            iterators[1]->setRightDown(trap.getRightDown());
+
+//            iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),trap.getRightUp(), trap.getRightUp()); //A
+//            iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),trap.getRightDown(), trap.getRightDown()); //B
+        }
     }
 
-    //TrapezoidalMap::updateNeighborsMultiTrapezoid(trap, iterators, 1, prevSeg, lastDeleted);
     lastDeleted = &trap;
 
     TrapezoidalMap::removeTrapezoid(trap.getItr());
@@ -676,7 +873,7 @@ DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, Dag
     DagNode * leafB;
     bool upper;
     std::vector<Trapezoid*> iterators(2);
-    InnerNodes* si;// = new DagNodeSegment(segment);
+    InnerNodes* si;
     Trapezoid& trap = leaf.getT();
     std::vector<cg3::Point2d> ints = {intersection(segment, trap.getTop().p1()), intersection(segment, trap.getTop().p2())};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
@@ -717,20 +914,6 @@ DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, Dag
     }
 
     lastDeleted = &trap;
-    //iterators[0]->setNeighbors(trap.getLeftUp(),trap.getLeftUp(),*iterators[2], *iterators[2]);//
-    //iterators[1]->setNeighbors(trap.getLeftDown(),trap.getLeftDown(),*iterators[2], *iterators[2]);//
-
-//    si->setLeftChild(bind(iterators[0]));
-//    si->setRightChild(bind(iterators[1]));
-
-//    if(upper){
-//        (trap.getLeftUp().getLeftUp().getRightUp().setNode(dynamic_cast<DagNodeArea*>(si->getLeftChild())));
-//        //ex = si->getLeftChild();
-//    }
-//    else{
-//        (trap.getLeftDown().getLeftDown().getRightDown().setNode(dynamic_cast<DagNodeArea*>(si->getRightChild())));
-//        //ex = si->getRightChild();
-//    }
     TrapezoidalMap::removeTrapezoid(trap.getItr());
     return si;
 }
@@ -739,6 +922,24 @@ DagNode *Dag::createIntermediate(cg3::Segment2d &segment, DagNodeArea &leaf, Dag
 
 
 
+//DagNode *Dag::splitNode(cg3::Segment2d &segment) //O(log n)
+//{
+//    DagNode* tmpdag=Dag::dag;
+//    DagNode* c1=nullptr;
+//    DagNode* c2=nullptr;
+//    bool splitted = false;
+//    if (tmpdag == nullptr)
+//        return nullptr;
+//    while(!splitted){
+//        c1 = tmpdag->compareNodeToPoint(segment.p1());
+//        c2 = tmpdag->compareNodeToPoint(segment.p2());
+//        if(c1==c2 && c1->getLeftChild()!=nullptr && c1->getRightChild()!=nullptr)
+//            tmpdag = c1;
+//        else
+//            splitted = true;
+//    }
+//    return tmpdag;
+//}
 
 
 
