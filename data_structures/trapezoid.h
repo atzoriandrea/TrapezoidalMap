@@ -49,18 +49,22 @@ public:
     bool leftUpNull() const;
     Trapezoid &getLeftUp() const;
     void setLeftUp(Trapezoid &value);
+    void setLeftUpNull();
 
     bool leftDownNull() const;
     Trapezoid &getLeftDown() const;
     void setLeftDown(Trapezoid& value);
+    void setLeftDownNull();
 
     bool rightUpNull() const;
     Trapezoid &getRightUp() const;
     void setRightUp(Trapezoid &value);
+    void setRightUpNull();
 
     bool rightDownNull() const;
     Trapezoid &getRightDown() const;
     void setRightDown(Trapezoid &value);
+    void setRightDownNull();
 
     void setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown);
 
@@ -90,5 +94,7 @@ private:
     Trapezoid* rightDown;
 
 };
+
+
 
 #endif // TRAPEZOID_H

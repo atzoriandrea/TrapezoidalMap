@@ -99,6 +99,11 @@ void Trapezoid::setLeftUp(Trapezoid &value)
     leftUp = &value;
 }
 
+void Trapezoid::setLeftUpNull()
+{
+    leftUp=nullptr;
+}
+
 bool Trapezoid::leftDownNull() const
 {
     return leftDown==nullptr;
@@ -112,6 +117,11 @@ Trapezoid& Trapezoid::getLeftDown() const
 void Trapezoid::setLeftDown(Trapezoid& value)
 {
     leftDown = &value;
+}
+
+void Trapezoid::setLeftDownNull()
+{
+    leftDown=nullptr;
 }
 
 bool Trapezoid::rightUpNull() const
@@ -129,6 +139,11 @@ void Trapezoid::setRightUp(Trapezoid &value)
     rightUp = &value;
 }
 
+void Trapezoid::setRightUpNull()
+{
+    rightUp=nullptr;
+}
+
 bool Trapezoid::rightDownNull() const
 {
     return rightDown==nullptr;
@@ -142,6 +157,11 @@ Trapezoid &Trapezoid::getRightDown() const
 void Trapezoid::setRightDown(Trapezoid &value)
 {
     rightDown = &value;
+}
+
+void Trapezoid::setRightDownNull()
+{
+    rightDown=nullptr;
 }
 
 void Trapezoid::setNeighbors(Trapezoid &leftUp, Trapezoid &leftDown,Trapezoid &rightUp,Trapezoid &rightDown)
