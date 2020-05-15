@@ -13,8 +13,7 @@
 #include "utils/fileutils.h"
 #include <cg3/utilities/color.h>
 
-#include <data_structures/dag_dataset.h>
-#include <data_structures/dag_node.h>
+
 //Limits for the bounding box
 //It defines where points can be added
 //Do not change the following line
@@ -41,7 +40,10 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
                 cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX)),
     firstPointSelectedColor(220, 80, 80),
     firstPointSelectedSize(5),
-    isFirstPointSelected(false)
+    isFirstPointSelected(false),
+    drawableTrapezoidalMap(),
+    dag(*drawableTrapezoidalMap.traps().begin())
+
 {
     //NOTE 1: you probably need to initialize some objects in the constructor. You
     //can see how to initialize an attribute in the lines above. This is C++ style
@@ -78,7 +80,7 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //drawableTrapezoidalMapDataset
     //
     //Example:
-    //      mainWindow.pushDrawableObject(&drawableTrapezoidalMap);
+    mainWindow.pushDrawableObject(&drawableTrapezoidalMap);
     //
     //Note that you could keep a Drawable trapezoidal map (drawableTrapezoidalMap) object
     //always rendered (even when it is empty), instead of deleting it from the main window
@@ -166,7 +168,36 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
 void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& segment)
 {
 
-
+    const cg3::Segment2d normSeg = gas::normalizeSegment(segment);
+    bool leftDegenerate = false;
+    bool rightDegenerate = false;
+    std::list<Trapezoid>::iterator itr;
+    DagNode*& ins = dag.searchAndAppend(normSeg);
+    Trapezoid& trapezoid = ((DagNodeArea*)ins)->getT();
+    if(normSeg.p2().x()>((DagNodeArea*)ins)->getT().getRightp().x())
+        gas::followSegment(normSeg, &trapezoid, drawableTrapezoidalMap, dag);
+    else{
+        if(normSeg.p1() == ((DagNodeArea*)ins)->getT().getLeftp())
+            leftDegenerate=true;
+        if(normSeg.p2() == ((DagNodeArea*)ins)->getT().getRightp())
+            rightDegenerate=true;
+        if(leftDegenerate && rightDegenerate){
+            itr = drawableTrapezoidalMap.totallyDegenerateSingleInsertion(trapezoid, normSeg);
+            ins = dag.totallyDegenerateSingleInsertion(normSeg, *--itr, *--itr);
+        }
+        else if(leftDegenerate && !rightDegenerate){
+            itr = drawableTrapezoidalMap.leftDegenerateSingleInsertion(trapezoid, normSeg);
+            ins = dag.leftDegenerateSingleInsertion(normSeg, *--itr, *--itr,*--itr);
+        }
+        else if(!leftDegenerate && rightDegenerate){
+            itr = drawableTrapezoidalMap.rightDegenerateSingleInsertion(trapezoid, normSeg);
+            ins = dag.rightDegenerateSingleInsertion(normSeg, *--itr, *--itr,*--itr);
+        }
+        else{
+            itr = drawableTrapezoidalMap.addSegmentInSingleTrap(trapezoid, normSeg);
+            ins = dag.addSegmentInSingleTrap(normSeg, *--itr , *--itr, *--itr, *--itr);
+        }
+    }
     //---------------------------------------------------------------------
     //Execute the incremental step to add a segment to your output TrapezoidalMap data
     //structure.
@@ -203,18 +234,9 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
 //        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
 //        //++itr;
 //    }
-//    mainWindow.updateCanvas();
+    mainWindow.updateCanvas();
     //mainWindow.pushDrawableObject(drawa)
     //#####################################################################
-
-    cg3::Segment2d s;
-    if(segment.p1().x() > segment.p2().x())
-        s = cg3::Segment2d(segment.p2(), segment.p1());
-    else
-        s = segment;
-    //Dag::addSegment(&s);
-    Dag::addSegment(s);
-    //DagNode * d = Dag::getDag();
 
     //You can delete this line after you implement the algorithm: it is
     //just needed to suppress the unused-variable warning

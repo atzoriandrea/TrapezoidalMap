@@ -3,7 +3,7 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 #include "trapezoid.h"
-#include "algorithms/algorithms.h"
+
 class Trapezoid;
 class DagNode{
 public:

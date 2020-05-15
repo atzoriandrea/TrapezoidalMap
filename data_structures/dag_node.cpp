@@ -1,4 +1,6 @@
 #include <data_structures/dag_node.h>
+#include "algorithms/algorithms.h"
+
 DagNode::DagNode(){}
 
 DagNode::NodeType DagNode::getType()
@@ -58,7 +60,7 @@ DagNode* DagNodePoint::compareNodeToSegment(const cg3::Segment2d &segment){
         return this->getLeftChild();
     if(segment.p1().x()>=this->point.x())
         return this->getRightChild();
-    long double res = matrixDet(segment, this->point);
+    long double res = gas::matrixDet(segment, this->point);
     return (res < 0)? this->getLeftChild():this->getRightChild();
 
 }
@@ -115,14 +117,14 @@ void DagNodeArea::setItr(const std::list<DagNodeArea>::iterator &value)
 
 DagNode* DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     long double res;
-    res = matrixDet(this->segment, point);
+    res = gas::matrixDet(this->segment, point);
 
     return (res < 0)? this->getRightChild():this->getLeftChild();
 }
 
 DagNode* DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
-    long double c1 = matrixDet(segment, this->segment.p1());
-    long double c2 = matrixDet(segment, this->segment.p2());
+    long double c1 = gas::matrixDet(segment, this->segment.p1());
+    long double c2 = gas::matrixDet(segment, this->segment.p2());
     if((c1 < 0 && c2 > 0) ||( c1 > 0 && c2 < 0 )){
         return(abs(c1) > abs(c2))?this->getLeftChild():this->getRightChild();
     }

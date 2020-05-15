@@ -1,28 +1,31 @@
 #ifndef TRAPEZOIDALMAP_H
 #define TRAPEZOIDALMAP_H
-#include "trapezoid.h"
 #include "dag_dataset.h"
-
 class TrapezoidalMap
 {
 public:
-    TrapezoidalMap();
+     TrapezoidalMap();
 
-    static std::list<Trapezoid>& getTrapezoids();
-    static Trapezoid& getTrapezoid();
-    static void addTrapezoids(std::vector<Trapezoid> vec);
-    static void addTrapezoid(Trapezoid& t);
-    static void removeTrapezoid(std::list<Trapezoid>::iterator);
-    static std::list<Trapezoid>& init(Trapezoid& ref);
-    static Trapezoid &getBoundingBox();
-    static void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
-    static void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
-    static DagNodeArea *& merge(Trapezoid& tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&);
-    static void deleteGarbage(std::vector<std::list<Trapezoid>::iterator>& garbage);
+     const std::list<Trapezoid>& getTrapezoids() const;
+     std::list<Trapezoid>& traps();
+     void addTrapezoids(std::vector<Trapezoid> vec); //to be removed
+     void addTrapezoid(Trapezoid& t);
+     void removeTrapezoid(std::list<Trapezoid>::iterator);
+     Trapezoid &getBoundingBox(); //to be removed
+     void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
+     void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+     DagNodeArea *& merge(Trapezoid& tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&); //to be removed
+
+//    static void addSegment(cg3::Segment2d& segment); //to be removed
+     void followSegment(cg3::Segment2d &, Trapezoid*); //to be removed
+
+    //new ones
+     std::list<Trapezoid>::iterator addSegmentInSingleTrap(Trapezoid& trap, const cg3::Segment2d& segment);
+     std::list<Trapezoid>::iterator leftDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
+     std::list<Trapezoid>::iterator rightDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
+     std::list<Trapezoid>::iterator totallyDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
 private:
-    static std::list<Trapezoid> trapezoids;
-    static Trapezoid boundingBox;
-    static std::vector<Trapezoid*> garbage;
+     std::list<Trapezoid> trapezoids;
 };
 
 #endif // TRAPEZOIDALMAP_H

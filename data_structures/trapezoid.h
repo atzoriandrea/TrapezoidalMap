@@ -2,18 +2,15 @@
 #define TRAPEZOID_H
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
-#include "dag_node.h"
+
 
 class DagNodeArea;
 class Trapezoid
 {
 public:
-    Trapezoid();
     ~Trapezoid();
     Trapezoid& operator=(Trapezoid& other){
         *this = other;
-        //this->defaultNode=other.defaultNode;
-        //this->setNode(this->defaultNode);
         return *this;
     }
     const Trapezoid& operator=(const Trapezoid& other) const{
@@ -24,14 +21,8 @@ public:
         *this = other;
         return *this;
     }
-//    Trapezoid& operator=(const Trapezoid* other){
-//        *this = other;
-//        return *this;
-//    }
-//    inline bool operator==(const Trapezoid& other) const {return (this->getTop().p1()==other.getTop().p1() && this->getBottom().p2()==other.getBottom().p2())?true:false;}
     inline bool operator==(const Trapezoid& other) const {return (this==&other)?true:false;}
     inline bool operator!=(const Trapezoid& other) const {return !(this==&other)?true:false;}
-    //inline bool operator!=(const Trapezoid& other) const {return !(this->getTop().p1()==other.getTop().p1()&& this->getBottom().p2()==other.getBottom().p2())?true:false;}
     inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}
     Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp,DagNodeArea*& n);
     cg3::Segment2d getTop() const;
@@ -71,8 +62,6 @@ public:
     DagNodeArea* getNode() const;
     DagNodeArea*& getNodeRef();
 
-    //void setNode(DagNodeArea &value);
-
     void setNode(DagNodeArea *value);
 
     std::list<Trapezoid>::iterator getItr() const;
@@ -87,7 +76,6 @@ private:
     cg3::Segment2d bottom;
     cg3::Point2d leftp;
     cg3::Point2d rightp;
-    //DagNodeArea*& node;
     Trapezoid* leftUp;
     Trapezoid* leftDown;
     Trapezoid* rightUp;

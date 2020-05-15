@@ -2,6 +2,7 @@
 #define DRAWABLE_TRAPEZOIDALMAP_DATASET_H
 
 #include "data_structures/trapezoidalmap_dataset.h"
+#include "data_structures/trapezoidalmap.h"
 
 #include <cg3/viewer/interfaces/drawable_object.h>
 
