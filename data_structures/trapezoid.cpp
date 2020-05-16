@@ -12,6 +12,7 @@ Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d lef
     this->rightUp=nullptr;
     this->leftDown=nullptr;
     this->rightDown=nullptr;
+    this->color = (rand(), rand(), rand());
 }
 
 cg3::Segment2d Trapezoid::getTop() const
@@ -167,6 +168,11 @@ Trapezoid& Trapezoid::setItr(const std::list<Trapezoid>::iterator &  value )
 {
     itr = value;
     return *this;
+}
+
+const cg3::Color& Trapezoid::getColor() const
+{
+    return color;
 }
 
 

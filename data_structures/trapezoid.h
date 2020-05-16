@@ -2,6 +2,7 @@
 #define TRAPEZOID_H
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
+#include <cg3/utilities/color.h>
 
 
 class DagNodeArea;
@@ -69,6 +70,8 @@ public:
 
 
 
+    const cg3::Color& getColor() const;
+
 private:
     std::list<Trapezoid>::iterator itr;
     DagNodeArea*& node;
@@ -80,6 +83,7 @@ private:
     Trapezoid* leftDown;
     Trapezoid* rightUp;
     Trapezoid* rightDown;
+    cg3::Color color;
 
 };
 

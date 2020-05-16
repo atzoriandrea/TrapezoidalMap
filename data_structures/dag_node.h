@@ -38,9 +38,9 @@ private:
 class InnerNodes: public DagNode{
 public:
 
-    InnerNodes(DagNode* lc, DagNode* rc);
-    InnerNodes(DagNodeArea*& left, DagNode* rc);
-    InnerNodes(DagNode* lc, DagNodeArea*& right);
+    InnerNodes(DagNode*& lc, DagNode*& rc);
+    InnerNodes(DagNodeArea*& left, DagNode*& rc);
+    InnerNodes(DagNode*& lc, DagNodeArea*& right);
 
     virtual DagNode* compareNodeToPoint(const cg3::Point2d& )=0;
     virtual DagNode* compareNodeToSegment(const cg3::Segment2d& )=0;
@@ -56,8 +56,8 @@ public:
     void setRightChild(DagNode * const value);
 
 private:
-    DagNode* lcValue;
-    DagNode* rcValue;
+//    DagNode* lcValue;
+//    DagNode* rcValue;
     DagNode*& leftChild;
     DagNode*& rightChild;
 };
@@ -69,9 +69,9 @@ public:
         return  * this;
     }
 
-    DagNodePoint(DagNode* lc, DagNode* rc, const cg3::Point2d& point);
-    DagNodePoint(DagNodeArea*& left, DagNode* rc, const cg3::Point2d& point);
-    DagNodePoint(DagNode* lc, DagNodeArea*& right, const cg3::Point2d& point);
+    DagNodePoint(DagNode*& lc, DagNode*& rc, const cg3::Point2d& point);
+    DagNodePoint(DagNodeArea*& left, DagNode*& rc, const cg3::Point2d& point);
+    DagNodePoint(DagNode*& lc, DagNodeArea*& right, const cg3::Point2d& point);
     DagNode* compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode* compareNodeToSegment(const cg3::Segment2d& segment) override;
     //int oneOrBoth(const cg3::Segment2d&) override;
@@ -91,9 +91,9 @@ private:
 
 class DagNodeSegment:public InnerNodes{
 public:
-    DagNodeSegment(DagNode* lc, DagNode* rc, const cg3::Segment2d& segment);
-    DagNodeSegment(DagNodeArea*& left, DagNode* rc, const cg3::Segment2d& segment);
-    DagNodeSegment(DagNode* lc, DagNodeArea*& right, const cg3::Segment2d& segment);
+    DagNodeSegment(DagNode*& lc, DagNode*& rc, const cg3::Segment2d& segment);
+    DagNodeSegment(DagNodeArea*& left, DagNode*& rc, const cg3::Segment2d& segment);
+    DagNodeSegment(DagNode*& lc, DagNodeArea*& right, const cg3::Segment2d& segment);
     DagNode* compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode* compareNodeToSegment(const cg3::Segment2d& segment) override;
     //int oneOrBoth(const cg3::Segment2d&) override;

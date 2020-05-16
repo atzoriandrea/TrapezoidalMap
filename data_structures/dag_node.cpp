@@ -27,24 +27,24 @@ DagNodeArea& DagNodeArea::operator=(DagNodeArea other){
     return *this;
 }
 
-InnerNodes::InnerNodes(DagNode* lc, DagNode* rc): lcValue(lc), rcValue(rc), leftChild(lcValue), rightChild(rcValue){}
-InnerNodes::InnerNodes(DagNodeArea*& left, DagNode* rc): leftChild((DagNode*&)left), rightChild(rcValue) {
-    lcValue = leftChild;
-    rcValue=rc;
+InnerNodes::InnerNodes(DagNode*& lc, DagNode*& rc): /*lcValue(lc), rcValue(rc),*/ leftChild(lc), rightChild(rc){}
+InnerNodes::InnerNodes(DagNodeArea*& left, DagNode*& rc): leftChild((DagNode*&)left), rightChild(rc) {
+//    lcValue = leftChild;
+//    rcValue=rc;
 }
-InnerNodes::InnerNodes(DagNode* lc, DagNodeArea*& right): leftChild(lcValue), rightChild((DagNode*&)right){
-    lcValue=lc;
-    rcValue = rightChild;
+InnerNodes::InnerNodes(DagNode*& lc, DagNodeArea*& right): leftChild(lc), rightChild((DagNode*&)right){
+//    lcValue=lc;
+//    rcValue = rightChild;
 }
 
 
-DagNodePoint::DagNodePoint(DagNode *lc, DagNode *rc, const cg3::Point2d &point):InnerNodes(lc, rc),point(point){ type = NodeType::X; }
-DagNodePoint::DagNodePoint(DagNodeArea *&left, DagNode *rc, const cg3::Point2d &point):InnerNodes(left, rc),point(point){type = NodeType::X; }
-DagNodePoint::DagNodePoint(DagNode *lc, DagNodeArea *&right, const cg3::Point2d &point):InnerNodes(lc, right),point(point){type = NodeType::X; }
+DagNodePoint::DagNodePoint(DagNode *&lc, DagNode *&rc, const cg3::Point2d &point):InnerNodes(lc, rc),point(point){ type = NodeType::X; }
+DagNodePoint::DagNodePoint(DagNodeArea *&left, DagNode *&rc, const cg3::Point2d &point):InnerNodes(left, rc),point(point){type = NodeType::X; }
+DagNodePoint::DagNodePoint(DagNode *&lc, DagNodeArea *&right, const cg3::Point2d &point):InnerNodes(lc, right),point(point){type = NodeType::X; }
 
-DagNodeSegment::DagNodeSegment(DagNode* lc, DagNode* rc, const cg3::Segment2d& segment) :InnerNodes(lc, rc),segment(segment){ type = NodeType::Y; }
-DagNodeSegment::DagNodeSegment(DagNodeArea *&left, DagNode *rc, const cg3::Segment2d &segment):InnerNodes(left, rc),segment(segment){type = NodeType::Y; }
-DagNodeSegment::DagNodeSegment(DagNode *lc, DagNodeArea *&right, const cg3::Segment2d &segment):InnerNodes(lc, right),segment(segment){type = NodeType::Y; }
+DagNodeSegment::DagNodeSegment(DagNode*& lc, DagNode*& rc, const cg3::Segment2d& segment) :InnerNodes(lc, rc),segment(segment){ type = NodeType::Y; }
+DagNodeSegment::DagNodeSegment(DagNodeArea *&left, DagNode *&rc, const cg3::Segment2d &segment):InnerNodes(left, rc),segment(segment){type = NodeType::Y; }
+DagNodeSegment::DagNodeSegment(DagNode *&lc, DagNodeArea *&right, const cg3::Segment2d &segment):InnerNodes(lc, right),segment(segment){type = NodeType::Y; }
 
 
 
@@ -133,15 +133,15 @@ DagNode* DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
 }
 
 
-DagNode *InnerNodes::getLcValue() const
-{
-    return lcValue;
-}
+//DagNode *InnerNodes::getLcValue() const
+//{
+//    return lcValue;
+//}
 
-DagNode *InnerNodes::getRcValue() const
-{
-    return rcValue;
-}
+//DagNode *InnerNodes::getRcValue() const
+//{
+//    return rcValue;
+//}
 
 DagNode *&InnerNodes::getLeftChild() const
 {

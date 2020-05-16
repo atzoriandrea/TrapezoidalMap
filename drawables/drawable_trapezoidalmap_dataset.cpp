@@ -18,16 +18,7 @@ void DrawableTrapezoidalMapDataset::draw() const
     for (const cg3::Segment2d& seg : getSegments()) {
         cg3::opengl::drawLine2(seg.p1(), seg.p2(), segmentColor, static_cast<int>(segmentSize));
     } 
-//    for (auto itr : getTrapezoids()){
-//        if(itr.getTop().p1()==itr.getBottom().p1()){
-//            cg3::opengl::drawTriangle2(itr.getTop().p1(),itr.getTop().p2(),itr.getBottom().p2(), QColor(0,0,0), 1);
-//        }
-//        else if(itr.getTop().p2()==itr.getBottom().p2()){
-//            cg3::opengl::drawTriangle2(itr.getBottom().p2(), itr.getBottom().p1(), itr.getTop().p1(),QColor(0,0,0),1);
-//        }
-//        else
-//            cg3::opengl::drawQuad2(itr.getTop().p1(),itr.getTop().p2(),itr.getBottom().p2(),itr.getBottom().p1(), segmentColor, static_cast<int>(segmentSize));
-//    }
+
 }
 
 cg3::Point3d DrawableTrapezoidalMapDataset::sceneCenter() const

@@ -13,7 +13,7 @@ public:
      void removeTrapezoid(std::list<Trapezoid>::iterator);
      Trapezoid &getBoundingBox(); //to be removed
      void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
-     void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+     void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment* prevSeg, Trapezoid*& lastDeleted);
      DagNodeArea *& merge(Trapezoid& tLeft, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&); //to be removed
 
 //    static void addSegment(cg3::Segment2d& segment); //to be removed
@@ -24,6 +24,11 @@ public:
      std::list<Trapezoid>::iterator leftDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
      std::list<Trapezoid>::iterator rightDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
      std::list<Trapezoid>::iterator totallyDegenerateSingleInsertion(Trapezoid& trap, const cg3::Segment2d& segment);
+     std::vector<Trapezoid*> createLeftMost(Trapezoid& trap, const cg3::Segment2d& segment, Trapezoid*& lastDeleted);
+     std::vector<Trapezoid*> createLeftMostDegenerate(Trapezoid& trap, const cg3::Segment2d& segment, Trapezoid*& lastDeleted);
+     std::vector<Trapezoid*> createRightMost(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+     std::vector<Trapezoid*> createRightMostDegenerate(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+     std::vector<Trapezoid*> createIntermediate(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
 private:
      std::list<Trapezoid> trapezoids;
 };

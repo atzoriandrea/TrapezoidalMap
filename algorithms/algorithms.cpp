@@ -1,101 +1,71 @@
 #include "algorithms.h"
 
-
+#define REDUCER 100000.0
+#define REDUCER2 1000000.0
 #define BOUNDINGBOX (1e+6)+1
 cg3::Point2d gas::intersection(const cg3::Segment2d & edge, const  cg3::Point2d & point){
-      cg3::Line2 line = cg3::Line2(edge);
+      cg3::Line2 line = cg3::Line2(edge.p1(), edge.p2());
       cg3::Line2 line2 = cg3::Line2(cg3::Point2d(point.x(), -BOUNDINGBOX), cg3::Point2d(point.x(), BOUNDINGBOX));
       cg3::Point2d res = line.intersection(line2);
+      res.x() = floor((res.x()*10000)+0.5)/10000.0;
+      res.y() = floor((res.y()*10000)+0.5)/10000.0;
       return res;
 }
 
 
-//verfica se il punto point è sopra o sotto il segmento calcolando il determinante di [[sx1,sy1,1][sx2,sy2,1][px,py,1]]
 long double gas::matrixDet(const cg3::Segment2d& segment, const cg3::Point2d& point){
-    double reducer = 100000.0;
-    double mat[3][3] = {{(segment.p1().x()/reducer),(segment.p1().y()/reducer),1.0},
-                                           {(segment.p2().x()/reducer),(segment.p2().y()/reducer), 1.0},
-                                           {(point.x()/reducer), (point.y()/reducer),1.0}};
+    double mat[3][3] = {{(segment.p1().x()/REDUCER),(segment.p1().y()/REDUCER),1.0},
+                                           {(segment.p2().x()/REDUCER),(segment.p2().y()/REDUCER), 1.0},
+                                           {(point.x()/REDUCER), (point.y()/REDUCER),1.0}};
     return mat[0][0]*((mat[1][1]*mat[2][2]) - (mat[2][1]*mat[1][2]))
             -mat[0][1]*(mat[1][0]*mat[2][2] - mat[2][0]*mat[1][2]) +
             mat[0][2]*(mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1]);
 }
 
 
-void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, TrapezoidalMap& tm, Dag& dag)
+void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, TrapezoidalMap* tm, Dag* dag)
 {
     Trapezoid * lastDeleted;
-    DagNodeArea * current;
     Trapezoid * next;
+    std::vector<Trapezoid*> traps;
     DagNode* prevSeg;
     unsigned long iter = 0;
     while(segment.p2().x() > trapezoid->getRightp().x()){
-        if(gas::matrixDet(segment, trapezoid->getRightp().x())<0)
+        if(gas::matrixDet(segment, trapezoid->getRightp())<0)
             next = &trapezoid->getRightUp();
         else
             next = &trapezoid->getRightDown();
-        DagNode *& copy = (DagNode*&)*trapezoid->getNodeRef();
+        DagNode *& copy = (DagNode*&)trapezoid->getNodeRef();
         if(iter==0){
             if(segment.p1()==trapezoid->getLeftp()){
-                //crea nuovi trapezoidi DEG
-                //crea nuovi nodi nel dag relativi ai nuovi trapezoidi DEG
+                traps = tm->createLeftMostDegenerate(*trapezoid,segment,lastDeleted);
+                copy = dag->createLeftMostDegenerate(segment, traps);
                 prevSeg = copy;
             }
             else{
-                //crea nuovi trapezoidi
-                //crea nuovi nodi nel dag relativi ai nuovi trapezoidi
-                prevSeg=copy;
+                traps = tm->createLeftMost(*trapezoid,segment,lastDeleted);
+                copy = dag->createLeftMost(segment, traps);
+                prevSeg=((DagNodePoint*)copy)->getRightChild();
             }
         }
         else{
-            //crea nuovi trapezoidi intermedi
-            //crea nuovi nodi nel dag relativi ai nuovi trapezoidi intermedi
+            traps = tm->createIntermediate(*trapezoid,segment,*(DagNodeSegment*)prevSeg, lastDeleted);
+            copy = dag->createIntermediate(segment,*(DagNodeSegment*)prevSeg, traps);
             prevSeg = copy;
         }
         iter++;
         trapezoid = next;
     }
-    DagNode *& copy = (DagNode*&)*trapezoid->getNodeRef();
+    DagNode *& copy = (DagNode*&)trapezoid->getNodeRef();
     if(segment.p2()==trapezoid->getRightp()){
-        //crea nuovi trapezoidi destri DEG
-        //crea nuovi nodi nel dag relativi ai nuovi trapezoidi destri DEGe
+        traps = tm->createRightMostDegenerate(*trapezoid,segment,*(DagNodeSegment*)prevSeg, lastDeleted);
+        copy = dag->createRightMostDegenerate(segment,*(DagNodeSegment*)prevSeg, traps);
     }
     else{
-        //crea nuovi trapezoidi destri
-        //crea nuovi nodi nel dag relativi ai nuovi trapezoidi destri
+        traps = tm->createRightMost(*trapezoid,segment,*(DagNodeSegment*)prevSeg, lastDeleted);
+        copy = dag->createRightMost(segment,*(DagNodeSegment*)prevSeg, traps);
     }
-//    while (segment.p2().x() > leaf->getT().getRightp().x()) {
-//        current = leaf;
-//        if(matrixDet(segment, leaf->getT().getRightp())<0){
-//            leaf = leaf->getT().getRightUp().getNodeRef();
 
-//        }
-//        else{
-//            leaf = leaf->getT().getRightDown().getNodeRef();
-//        }
-//        DagNode *& copy = (DagNode*&)current->getT().getNodeRef();
-//        if(iter == 0){
-//            if(segment.p1()==(*(DagNodeArea*)copy).getT().getLeftp()){
-//                copy = createLeftMostDegenerate(segment, *(DagNodeArea*)copy, lastDeleted);
-//                prevSeg = copy;
-//            }
-//            else{
-//                copy = createLeftMost(segment, *(DagNodeArea*)copy, lastDeleted);
-//                prevSeg = ((DagNodePoint*)copy)->getRightChild();
-//            }
-//        }
-//        else{
-//            copy = createIntermediate(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
-//            prevSeg = copy;
-//        }
-//       iter ++;
-//    }
-//    DagNode*& copy = (DagNode*&)leaf->getT().getNodeRef();
-//    if(segment.p2()==(*(DagNodeArea*)copy).getT().getRightp()){
-//        copy = createRightMostDegenerate(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
-//    }
-//    else
-//        copy = createRightMost(segment, *(DagNodeArea*)copy, *(DagNodeSegment*)prevSeg, lastDeleted);
 }
 
 void gas::bind(cg3::Segment2d &top, cg3::Segment2d &bottom, cg3::Point2d &leftp, cg3::Point2d &rightp, TrapezoidalMap& tm)
@@ -109,7 +79,7 @@ void gas::bind(cg3::Segment2d &top, cg3::Segment2d &bottom, cg3::Point2d &leftp,
 const cg3::Segment2d gas::normalizeSegment(const cg3::Segment2d& seg)
 {
 
-    if(seg.p2().x()>seg.p1().x())
+    if(seg.p2().x()<seg.p1().x())
         return cg3::Segment2d(seg.p2(),seg.p1());
     else
         return seg;

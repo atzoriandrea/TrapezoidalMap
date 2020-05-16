@@ -80,7 +80,7 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //drawableTrapezoidalMapDataset
     //
     //Example:
-    mainWindow.pushDrawableObject(&drawableTrapezoidalMap);
+    mainWindow.pushDrawableObject(&drawableTrapezoidalMap, "Trapezoids");
     //
     //Note that you could keep a Drawable trapezoidal map (drawableTrapezoidalMap) object
     //always rendered (even when it is empty), instead of deleting it from the main window
@@ -175,7 +175,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     DagNode*& ins = dag.searchAndAppend(normSeg);
     Trapezoid& trapezoid = ((DagNodeArea*)ins)->getT();
     if(normSeg.p2().x()>((DagNodeArea*)ins)->getT().getRightp().x())
-        gas::followSegment(normSeg, &trapezoid, drawableTrapezoidalMap, dag);
+        gas::followSegment(normSeg, &trapezoid, &drawableTrapezoidalMap, &dag);
     else{
         if(normSeg.p1() == ((DagNodeArea*)ins)->getT().getLeftp())
             leftDegenerate=true;
@@ -228,19 +228,11 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //already in the structure. You could use it for your trapezoidal map to make it more
     //efficient in memory. However, depending on how you implement your algorithms and data 
 	//structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
-
-//    std::unordered_map<cg3::Point2d, Trapezoid>::iterator itr;
-//    for (auto itr : TrapezoidalMapDataset::getTrapezoids()){
-//        cg3::opengl::drawQuad2(itr.second.getTop().p1(),itr.second.getTop().p2(),itr.second.getBottom().p1(),itr.second.getBottom().p2(), QColor(0,0,0));
-//        //++itr;
-//    }
-    mainWindow.updateCanvas();
     //mainWindow.pushDrawableObject(drawa)
     //#####################################################################
 
     //You can delete this line after you implement the algorithm: it is
     //just needed to suppress the unused-variable warning
-    CG3_SUPPRESS_WARNING(segment);
 }
 
 /**
