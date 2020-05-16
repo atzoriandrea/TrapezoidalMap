@@ -29,7 +29,13 @@ public:
      std::vector<Trapezoid*> createRightMost(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
      std::vector<Trapezoid*> createRightMostDegenerate(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
      std::vector<Trapezoid*> createIntermediate(Trapezoid& trap, const cg3::Segment2d& segment, DagNodeSegment& prevSeg, Trapezoid*& lastDeleted);
+
+     void queryPoint(const cg3::Point2d);
+     std::list<Trapezoid>::iterator getQuery() const;
+     void setQuery(std::list<Trapezoid>::iterator value);
+
 private:
+     std::list<Trapezoid>::iterator query;
      std::list<Trapezoid> trapezoids;
 };
 

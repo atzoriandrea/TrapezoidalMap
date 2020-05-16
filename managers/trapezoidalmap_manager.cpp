@@ -242,6 +242,13 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
 
+    DagNode* tmpdag= dag.dagRef();
+
+    while(tmpdag->getType()!=DagNode::Leaf){
+        tmpdag = ((InnerNodes*)tmpdag)->compareNodeToPoint(queryPoint);
+    }
+
+    drawableTrapezoidalMap.setQuery(((DagNodeArea*)tmpdag)->getT().getItr());
 
     //---------------------------------------------------------------------
     //Execute the point location algorithm of your TrapezoidalMap to locate in which trapezoid

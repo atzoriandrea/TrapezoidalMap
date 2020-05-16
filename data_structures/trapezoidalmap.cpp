@@ -702,6 +702,16 @@ std::vector<Trapezoid*> TrapezoidalMap::createIntermediate(Trapezoid &trap, cons
     return iterators;
 }
 
+std::list<Trapezoid>::iterator TrapezoidalMap::getQuery() const
+{
+    return query;
+}
+
+void TrapezoidalMap::setQuery(std::list<Trapezoid>::iterator value)
+{
+    query = value;
+}
+
 
 
 const std::list<Trapezoid>& TrapezoidalMap::getTrapezoids() const
