@@ -19,7 +19,6 @@ public:
 class DagNodeArea:public DagNode{
 public:
     DagNodeArea(Trapezoid& t);
-    void swap(DagNodeArea& other);
     Trapezoid& getT() const;
     void setTrap(Trapezoid &value) const;
 private:
@@ -51,11 +50,6 @@ private:
 
 class DagNodePoint:public InnerNodes{
 public:
-    DagNodePoint& operator = (DagNodePoint& other){
-        *this = other;
-        return  * this;
-    }
-
     DagNodePoint(DagNode*& lc, DagNode*& rc, const cg3::Point2d& point);
     DagNodePoint(DagNodeArea*& left, DagNode*& rc, const cg3::Point2d& point);
     DagNodePoint(DagNode*& lc, DagNodeArea*& right, const cg3::Point2d& point);
