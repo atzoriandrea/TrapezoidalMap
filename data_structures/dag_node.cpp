@@ -9,33 +9,11 @@ DagNode::NodeType DagNode::getType()
 }
 
 DagNodeArea::DagNodeArea(Trapezoid &t) :trap(t){ type = NodeType::Leaf; };
-DagNodeArea& DagNodeArea::operator =(DagNodeArea &other){
-        itr = other.itr;
-        trap = other.trap;
-}
-DagNodeArea::DagNodeArea(DagNodeArea &other):trap(other.trap)
-{
-    itr = other.getItr();
-    trap = other.getT();
-}
-void DagNodeArea::swap(DagNodeArea& other){
-    using std::swap;
-    swap(trap, other.trap);
-};
-DagNodeArea& DagNodeArea::operator=(DagNodeArea other){
-    swap(other);
-    return *this;
-}
+
 
 InnerNodes::InnerNodes(DagNode*& lc, DagNode*& rc): /*lcValue(lc), rcValue(rc),*/ leftChild(lc), rightChild(rc){}
-InnerNodes::InnerNodes(DagNodeArea*& left, DagNode*& rc): leftChild((DagNode*&)left), rightChild(rc) {
-//    lcValue = leftChild;
-//    rcValue=rc;
-}
-InnerNodes::InnerNodes(DagNode*& lc, DagNodeArea*& right): leftChild(lc), rightChild((DagNode*&)right){
-//    lcValue=lc;
-//    rcValue = rightChild;
-}
+InnerNodes::InnerNodes(DagNodeArea*& left, DagNode*& rc): leftChild((DagNode*&)left), rightChild(rc) {}
+InnerNodes::InnerNodes(DagNode*& lc, DagNodeArea*& right): leftChild(lc), rightChild((DagNode*&)right){}
 
 
 DagNodePoint::DagNodePoint(DagNode *&lc, DagNode *&rc, const cg3::Point2d &point):InnerNodes(lc, rc),point(point){ type = NodeType::X; }
@@ -105,15 +83,7 @@ void DagNodeArea::setItr(const std::list<DagNodeArea>::iterator &value)
 {
     itr = value;
 }
-//int DagNodePoint::oneOrBoth(const cg3::Segment2d & segment)
-//{
-//    enum direction { left = 1, right = 2, both = 3 };
-//    double xValue = this->point.x();
-//    if(segment.p1().x() < xValue && segment.p2().x() > xValue)
-//        return both;
-//    return (this->compareNodeToSegment(segment)==this->getLeftChild())? left : right;
-//}
-//template<typename T>
+
 
 DagNode* DagNodeSegment::compareNodeToPoint(const cg3::Point2d& point){
     long double res;
@@ -131,17 +101,6 @@ DagNode* DagNodeSegment::compareNodeToSegment(const cg3::Segment2d &segment){
     return (c1 < 0 && c2 < 0) ? this->getLeftChild():this->getRightChild();
 
 }
-
-
-//DagNode *InnerNodes::getLcValue() const
-//{
-//    return lcValue;
-//}
-
-//DagNode *InnerNodes::getRcValue() const
-//{
-//    return rcValue;
-//}
 
 DagNode *&InnerNodes::getLeftChild() const
 {

@@ -1,14 +1,13 @@
 #include "algorithms.h"
 
 #define REDUCER 100000.0
-#define REDUCER2 1000000.0
 #define BOUNDINGBOX (1e+6)+1
 cg3::Point2d gas::intersection(const cg3::Segment2d & edge, const  cg3::Point2d & point){
       cg3::Line2 line = cg3::Line2(edge.p1(), edge.p2());
       cg3::Line2 line2 = cg3::Line2(cg3::Point2d(point.x(), -BOUNDINGBOX), cg3::Point2d(point.x(), BOUNDINGBOX));
       cg3::Point2d res = line.intersection(line2);
-      res.x() = floor((res.x()*10000)+0.5)/10000.0;
-      res.y() = floor((res.y()*10000)+0.5)/10000.0;
+      res.x() = point.x();
+      res.y() = std::round((res.y()*10000))/10000.0;
       return res;
 }
 
@@ -28,7 +27,7 @@ void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, Tra
     Trapezoid * lastDeleted;
     Trapezoid * next;
     std::vector<Trapezoid*> traps;
-    DagNode* prevSeg;
+    DagNode* prevSeg = nullptr;
     unsigned long iter = 0;
     while(segment.p2().x() > trapezoid->getRightp().x()){
         if(gas::matrixDet(segment, trapezoid->getRightp())<0)

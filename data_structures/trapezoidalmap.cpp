@@ -368,7 +368,7 @@ std::vector<Trapezoid*>  TrapezoidalMap::createLeftMost(Trapezoid &trap, const c
                                       gas::intersection(segment, trap.getTop().p2())};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
         std::make_tuple(cg3::Segment2d(trap.getTop().p1(),ints[0]),cg3::Segment2d(trap.getBottom().p1(),ints[1]), trap.getLeftp() , segment.p1()),
-        std::make_tuple(cg3::Segment2d(ints[0],trap.getTop().p2()),cg3::Segment2d(segment.p1(), gas::intersection(segment,trap.getBottom().p2())),segment.p1(), ((trap.getRightp().y()>ints[2].y())?trap.getRightp():ints[2])),
+        std::make_tuple(cg3::Segment2d(ints[0],trap.getTop().p2()),cg3::Segment2d(segment.p1(), ints[2]),segment.p1(), ((trap.getRightp().y()>ints[2].y())?trap.getRightp():ints[2])),
         std::make_tuple(cg3::Segment2d(segment.p1(),ints[2]),cg3::Segment2d(ints[1], trap.getBottom().p2()),segment.p1(), ((trap.getRightp().y()>ints[2].y())?ints[2]:trap.getRightp())),
 
     };
@@ -486,8 +486,6 @@ std::vector<Trapezoid*>  TrapezoidalMap::createLeftMostDegenerate(Trapezoid &tra
             rightUp->setLeftDown(*iterators[0]);
     }
 
-    //from new to old neighbors
-
     lastDeleted = &trap;
     removeTrapezoid(trap.getItr());
     return iterators;
@@ -555,8 +553,8 @@ std::vector<Trapezoid*> TrapezoidalMap::createRightMostDegenerate(Trapezoid &tra
 
     std::vector<cg3::Point2d> ints = {gas::intersection(segment, trap.getTop().p1()), gas::intersection(segment, trap.getTop().p2())};
     std::vector<std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>> traps = {
-        std::make_tuple(cg3::Segment2d(trap.getTop().p1(),trap.getTop().p2()),cg3::Segment2d(ints[0], ints[1]),(trap.getLeftp().y()<ints[0].y())?ints[0]:trap.getLeftp(), segment.p2()),
-        std::make_tuple(cg3::Segment2d(ints[0], ints[1]),cg3::Segment2d(trap.getBottom().p1(), trap.getBottom().p2()),(trap.getLeftp().y()>ints[0].y())?ints[0]:trap.getLeftp(), segment.p2()),
+        std::make_tuple(cg3::Segment2d(trap.getTop().p1(),trap.getTop().p2()),cg3::Segment2d(ints[0], segment.p2()),(trap.getLeftp().y()<ints[0].y())?ints[0]:trap.getLeftp(), segment.p2()),
+        std::make_tuple(cg3::Segment2d(ints[0], segment.p2()),cg3::Segment2d(trap.getBottom().p1(), trap.getBottom().p2()),(trap.getLeftp().y()>ints[0].y())?ints[0]:trap.getLeftp(), segment.p2()),
     };
     if(segment.p2()==trap.getTop().p2())
         triangleOver = true;
@@ -712,6 +710,12 @@ void TrapezoidalMap::setQuery(std::list<Trapezoid>::iterator value)
     query = value;
 }
 
+void TrapezoidalMap::clear()
+{
+    trapezoids.clear();
+    query = trapezoids.end();
+}
+
 
 
 const std::list<Trapezoid>& TrapezoidalMap::getTrapezoids() const
@@ -736,6 +740,7 @@ void TrapezoidalMap::addTrapezoid(Trapezoid& t)
 void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) Delete a list element
 {
     std::list<Trapezoid>& ref = TrapezoidalMap::traps();
+    delete itr->getNodeRef();
     ref.erase(itr);
 
 }
@@ -749,19 +754,29 @@ void TrapezoidalMap::updateNeighbors(const Trapezoid &t, std::vector<Trapezoid*>
     Trapezoid* leftDown = &t.getLeftDown();
     Trapezoid* rightUp = &t.getRightUp();
     Trapezoid* rightDown = &t.getRightDown();
-    if(leftUp !=nullptr && leftDown !=nullptr){
-        if(leftUp==leftDown){
-            if(t.getTop().p1()==leftUp->getRightp())
-                leftUp->setRightDown(*heirs[0]);
-            else
-                leftUp->setRightUp(*heirs[0]);
-        }
-        else{
+//    if(leftUp !=nullptr && leftDown !=nullptr){
+//        if(leftUp==leftDown){
+//            if(t.getTop().p1()==leftUp->getRightp())
+//                leftUp->setRightDown(*heirs[0]);
+//            else
+//                leftUp->setRightUp(*heirs[0]);
+//        }
+//        else{
+//            leftUp->setRightUp(*heirs[0]);
+//            leftUp->setRightDown(*heirs[0]);
+//            leftDown->setRightUp(*heirs[0]);
+//            leftDown->setRightDown(*heirs[0]);
+//        }
+//    }
+    if(leftUp!=nullptr && leftDown!=nullptr){
+        if(leftUp->getRightUp()==t)
             leftUp->setRightUp(*heirs[0]);
+        if(leftUp->getRightDown()==t)
             leftUp->setRightDown(*heirs[0]);
+        if(leftDown->getRightUp()==t)
             leftDown->setRightUp(*heirs[0]);
+        if(leftDown->getRightDown()==t)
             leftDown->setRightDown(*heirs[0]);
-        }
     }
     if(rightUp !=nullptr && rightDown !=nullptr){
         if(rightDown->getLeftUp()==t)

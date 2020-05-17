@@ -47,15 +47,18 @@ DagNode *&Dag::dagRef()
     return dag;
 }
 
-//DagNode* Dag::searchPoint(const cg3::Point2d& point){ //O(log n)
-//    DagNode* tmpdag= Dag::dag;
+void Dag::clear(DagNode* node)
+{
+   if(node!= nullptr && node->getType()!=DagNode::Leaf){
+       clear(((InnerNodes*)node)->getLeftChild());
+       delete ((InnerNodes*)node)->getLeftChild();
+       ((InnerNodes*)node)->setLeftChild(nullptr);
+       clear(((InnerNodes*)node)->getRightChild());
+       delete ((InnerNodes*)node)->getRightChild();
+       ((InnerNodes*)node)->setRightChild(nullptr);
+   }
+}
 
-//    while(tmpdag->getType()!=DagNode::Leaf){
-//        tmpdag = ((InnerNodes*)tmpdag)->compareNodeToPoint(point);
-//    }
-//    return tmpdag;
-
-//}
 
 DagNode*& Dag::searchAndAppend(const cg3::Segment2d &seg)
 {

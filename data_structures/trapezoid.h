@@ -14,14 +14,14 @@ public:
         *this = other;
         return *this;
     }
-    const Trapezoid& operator=(const Trapezoid& other) const{
-        *this = other;
-        return *this;
-    }
-    Trapezoid& operator=(Trapezoid *other){
-        *this = other;
-        return *this;
-    }
+//    const Trapezoid& operator=(const Trapezoid& other) const{
+//        *this = other;
+//        return *this;
+//    }
+//    Trapezoid& operator=(Trapezoid *other){
+//        *this = other;
+//        return *this;
+//    }
     inline bool operator==(const Trapezoid& other) const {return (this==&other)?true:false;}
     inline bool operator!=(const Trapezoid& other) const {return !(this==&other)?true:false;}
     inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}

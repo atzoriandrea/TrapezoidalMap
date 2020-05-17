@@ -35,6 +35,7 @@ public:
 
 
     void setDag(DagNode *value);
+    void clear(DagNode *);
 
 private:
     DagNode* dag;
