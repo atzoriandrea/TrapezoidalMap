@@ -10,7 +10,7 @@ public:
      std::list<Trapezoid>& traps();
      void addTrapezoid(Trapezoid& t);
      void removeTrapezoid(std::list<Trapezoid>::iterator);
-     DagNodeArea*& merge(Trapezoid &, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&);
+     void merge(Trapezoid &, std::tuple<cg3::Segment2d, cg3::Segment2d, cg3::Point2d, cg3::Point2d>&);
      void updateNeighbors(const Trapezoid& t, std::vector<Trapezoid*>& heirs);
      void updateNeighborsMultiTrapezoid(Trapezoid& t, std::vector<Trapezoid*>& heirs, int type, DagNodeSegment* prevSeg, Trapezoid*& lastDeleted);
 

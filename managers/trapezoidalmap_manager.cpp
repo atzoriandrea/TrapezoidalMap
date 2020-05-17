@@ -106,7 +106,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     DagNode*& ins = dag.searchAndAppend(normSeg);
     Trapezoid& trapezoid = ((DagNodeArea*)ins)->getT();
     if(normSeg.p2().x()>((DagNodeArea*)ins)->getT().getRightp().x())
-        gas::followSegment(normSeg, &trapezoid, &drawableTrapezoidalMap, &dag);
+        gas::followSegment(normSeg, &trapezoid, drawableTrapezoidalMap, dag);
     else{
         if(normSeg.p1() == ((DagNodeArea*)ins)->getT().getLeftp())
             leftDegenerate=true;

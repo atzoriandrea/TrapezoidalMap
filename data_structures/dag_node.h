@@ -25,14 +25,8 @@ public:
     void swap(DagNodeArea& other);
     Trapezoid& getT() const;
     void setTrap(Trapezoid &value) const;
-
-    std::list<DagNodeArea>::iterator& getItr() ;
-    void setItr(const std::list<DagNodeArea>::iterator &value);
-
 private:
     Trapezoid& trap;
-    std::list<DagNodeArea>::iterator itr;
-
 };
 
 class InnerNodes: public DagNode{
@@ -56,8 +50,6 @@ public:
     void setRightChild(DagNode * const value);
 
 private:
-//    DagNode* lcValue;
-//    DagNode* rcValue;
     DagNode*& leftChild;
     DagNode*& rightChild;
 };
@@ -74,18 +66,10 @@ public:
     DagNodePoint(DagNode*& lc, DagNodeArea*& right, const cg3::Point2d& point);
     DagNode* compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode* compareNodeToSegment(const cg3::Segment2d& segment) override;
-    //int oneOrBoth(const cg3::Segment2d&) override;
-
-    std::list<DagNodePoint>::iterator& getItr();
-    void setItr(const std::list<DagNodePoint>::iterator &value);
-
     cg3::Point2d getPoint() const;
 
 private:
-    cg3::Point2d point;
-    std::list<DagNodePoint>::iterator itr;
-
-
+    const cg3::Point2d point;
 };
 
 
@@ -96,16 +80,10 @@ public:
     DagNodeSegment(DagNode*& lc, DagNodeArea*& right, const cg3::Segment2d& segment);
     DagNode* compareNodeToPoint(const cg3::Point2d& point) override;
     DagNode* compareNodeToSegment(const cg3::Segment2d& segment) override;
-    //int oneOrBoth(const cg3::Segment2d&) override;
-    std::list<DagNodeSegment>::iterator& getItr();
-    void setItr(const std::list<DagNodeSegment>::iterator &value);
-
     cg3::Segment2d getSegment() const;
 
 private:
     cg3::Segment2d segment;
-    std::list<DagNodeSegment>::iterator itr;
-
 };
 
 #endif // DAG_NODE_H
