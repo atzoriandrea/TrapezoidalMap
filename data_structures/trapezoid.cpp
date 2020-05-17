@@ -1,7 +1,6 @@
 #include "trapezoid.h"
 #include "dag_node.h"
 
-Trapezoid::~Trapezoid(){}
 
 Trapezoid::Trapezoid(cg3::Segment2d top, cg3::Segment2d bottom, cg3::Point2d leftp, cg3::Point2d rightp, DagNodeArea*& n):node(n){
     this->top = top;

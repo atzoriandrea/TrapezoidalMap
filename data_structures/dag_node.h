@@ -7,7 +7,7 @@
 class Trapezoid;
 class DagNode{
 public:
-    DagNode();   
+    DagNode();
     virtual ~DagNode(){}
     enum NodeType {X, Y, Leaf};
     enum Bounds {Classic, LeftBounded, RightBounded};
@@ -18,9 +18,6 @@ public:
 
 class DagNodeArea:public DagNode{
 public:
-    DagNodeArea& operator=(DagNodeArea other);
-    DagNodeArea& operator = (DagNodeArea & other);
-    DagNodeArea(DagNodeArea& other);
     DagNodeArea(Trapezoid& t);
     void swap(DagNodeArea& other);
     Trapezoid& getT() const;
@@ -40,8 +37,6 @@ public:
     virtual DagNode* compareNodeToSegment(const cg3::Segment2d& )=0;
     friend class Dag;
 
-    DagNode *getLcValue() const;
-    DagNode *getRcValue() const;
     DagNode *&getLeftChild() const;
     DagNode *&getRightChild() const;
 
