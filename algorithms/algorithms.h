@@ -15,14 +15,6 @@ namespace gas{
     const cg3::Segment2d normalizeSegment(const cg3::Segment2d& seg);
 }
 
-namespace degenerateUpdate {
-    void leftSingle(Trapezoid&, std::vector<Trapezoid*>&, bool triangleOver, bool linear);
-    void leftMulti(Trapezoid&, std::vector<Trapezoid*>&, bool aboverightp, bool triangleOver, bool linear);
-    void rightMulti(Trapezoid&, std::vector<Trapezoid*>&, bool triangleOver, bool linear );
-    void rightSingle(Trapezoid&, std::vector<Trapezoid*>&, bool triangleOver, bool linear);
-    void bothDegenerate(Trapezoid&, std::vector<Trapezoid*>&, bool triangleOverLeft, bool triangleOverRight, bool linearRight, bool linearLeft);
-}
-//void bind(Trapezoid& t, DagNodeArea* node);
 
 
 #endif // ALGORITHMS_H
