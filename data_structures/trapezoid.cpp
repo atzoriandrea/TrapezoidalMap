@@ -175,5 +175,79 @@ const cg3::Color& Trapezoid::getColor() const
 }
 
 
+//rule of five
+Trapezoid::~Trapezoid() //Destructor
+{
+}
+
+Trapezoid::Trapezoid(const Trapezoid &other):node(other.node) //Copy Constructor
+{
+    leftUp = other.leftUp;
+    leftDown = other.leftDown;
+    rightUp = other.rightUp;
+    rightDown = other.rightDown;
+    top = other.top;
+    bottom = other.bottom;
+    leftp = other.leftp;
+    rightp = other.rightp;
+    itr = other.itr;
+    color = other.color;
+}
+
+Trapezoid &Trapezoid::operator =(Trapezoid other) //Assignment operator
+{
+    swap(other);
+    return *this;
+}
+
+Trapezoid::Trapezoid(Trapezoid &&other) noexcept : node(other.node) //Move constructor
+{
+    leftUp = other.leftUp;
+    other.leftUp = nullptr;
+    leftDown = other.leftDown;
+    other.leftDown = nullptr;
+    rightUp = other.rightUp;
+    other.rightUp = nullptr;
+    rightDown = other.rightDown;
+    other.rightDown = nullptr;
+    top = other.top;
+    bottom = other.bottom;
+    leftp = other.leftp;
+    rightp = other.rightp;
+    itr = other.itr;
+    color = other.color;
+}
+
+Trapezoid &Trapezoid::operator =(Trapezoid &&other) noexcept // Move = operator
+{
+    std::swap(node, other.node);
+    std::swap(leftUp, other.leftUp);
+    std::swap(leftDown, other.leftDown);
+    std::swap(rightUp, other.rightUp);
+    std::swap(rightDown, other.rightDown);
+    std::swap(top, other.top);
+    std::swap(bottom, other.bottom);
+    std::swap(leftp, other.leftp);
+    std::swap(rightp, other.rightp);
+    std::swap(itr, other.itr);
+    return *this;
+}
+
+void Trapezoid::swap(Trapezoid & other) noexcept
+{
+    using std::swap;
+    swap(node, other.node);
+    swap(leftUp, other.leftUp);
+    swap(leftDown, other.leftDown);
+    swap(rightUp, other.rightUp);
+    swap(rightDown, other.rightDown);
+    swap(top, other.top);
+    swap(bottom, other.bottom);
+    swap(leftp, other.leftp);
+    swap(rightp, other.rightp);
+    swap(itr, other.itr);
+}
+
+
 
 

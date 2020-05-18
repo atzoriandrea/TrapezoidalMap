@@ -9,11 +9,6 @@ class DagNodeArea;
 class Trapezoid
 {
 public:
-    Trapezoid& operator=(Trapezoid& other){
-        *this = other;
-        return *this;
-    }
-
     inline bool operator==(const Trapezoid& other) const {return (this==&other)?true:false;}
     inline bool operator!=(const Trapezoid& other) const {return !(this==&other)?true:false;}
     inline bool operator<(const Trapezoid& other) const {return !(this->getTop().p1()<other.getTop().p1())?true:false;}
@@ -63,6 +58,15 @@ public:
 
 
     const cg3::Color& getColor() const;
+
+
+    //rule of five
+    ~Trapezoid(); //Destructor
+    Trapezoid(Trapezoid const& other); //Copy Constructor
+    Trapezoid& operator = (Trapezoid other); //Assignment operator
+    Trapezoid(Trapezoid&& other) noexcept; //Move constructor
+    Trapezoid& operator = (Trapezoid  && other) noexcept; // Move = operator
+    void swap(Trapezoid&) noexcept;
 
 private:
     std::list<Trapezoid>::iterator itr;

@@ -46,6 +46,7 @@ void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, Tra
     Trapezoid * next;
     std::vector<Trapezoid*> traps;
     DagNode* prevSeg = nullptr;
+    DagNode* to_be_deleted = nullptr;
     unsigned long iter = 0;
     while(segment.p2().x() > trapezoid->getRightp().x()){
         if(gas::matrixDet(segment, trapezoid->getRightp())<0)
@@ -53,6 +54,7 @@ void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, Tra
         else
             next = &trapezoid->getRightDown();
         DagNode *& copy = (DagNode*&)trapezoid->getNodeRef();
+        to_be_deleted = &*copy;
         if(iter==0){
             if(segment.p1()==trapezoid->getLeftp()){ //leftmost trapezoid update - degenerate case
                 traps = tm.createLeftMostDegenerate(*trapezoid,segment,lastDeleted); //tm update
@@ -72,8 +74,10 @@ void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, Tra
         }
         iter++;
         trapezoid = next;
+        delete to_be_deleted;
     }
     DagNode *& copy = (DagNode*&)trapezoid->getNodeRef();
+    to_be_deleted = &*copy;
     if(segment.p2()==trapezoid->getRightp()){//rightmost trapezoid update - degenerate case
         traps = tm.createRightMostDegenerate(*trapezoid,segment,*(DagNodeSegment*)prevSeg, lastDeleted);//tm update
         copy = dag.createRightMostDegenerate(segment,*(DagNodeSegment*)prevSeg, traps);//dag update according to tm
@@ -82,6 +86,7 @@ void gas::followSegment(const cg3::Segment2d &segment, Trapezoid *trapezoid, Tra
         traps = tm.createRightMost(*trapezoid,segment,*(DagNodeSegment*)prevSeg, lastDeleted);//tm update
         copy = dag.createRightMost(segment,*(DagNodeSegment*)prevSeg, traps);//dag update according to tm
     }
+    delete to_be_deleted;
 }
 
 /**

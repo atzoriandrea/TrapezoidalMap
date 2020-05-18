@@ -164,13 +164,4 @@ Trapezoid& DagNodeArea::getT() const
     return trap;
 }
 
-/**
- * @brief set Trapezoid in Leaf node
- * @param reference to a Trapezoid
- */
-void DagNodeArea::setTrap(Trapezoid &value) const
-{
-    trap=value;
-}
-
 

@@ -525,7 +525,6 @@ void TrapezoidalMap::addTrapezoid(Trapezoid& t)
 void TrapezoidalMap::removeTrapezoid(std::list<Trapezoid>::iterator itr) //O(1) Delete a list element
 {
     std::list<Trapezoid>& ref = TrapezoidalMap::traps();
-    delete itr->getNodeRef();
     ref.erase(itr);
 
 }
